@@ -29,14 +29,21 @@ function App() {
 
     // Canvas pan
     canvas.on('mouse:down', function(opt) {
-      console.log(mode);
       var evt = opt.e;
       if (evt.altKey === true) {
         this.isDragging = true;
         this.selection = false;
         this.lastPosX = evt.clientX;
         this.lastPosY = evt.clientY;
-      } 
+      } else if (this.mode == 'draw') {
+        const circle = new fabric.Circle({
+          radius: 5,
+          fill: 'black',
+          left: opt.absolutePointer.x,
+          top: opt.absolutePointer.y,
+        });
+        canvas.add(circle);
+      }
     });
 
     canvas.on('mouse:move', function(opt) {
@@ -77,11 +84,11 @@ function App() {
     return () => {
       fabricRef.current.dispose();
     };
-  }, [mode]);
+  }, []);
 
   const handleMode = (event, newMode) => {
     if (newMode !== null){
-      console.log("handlemode: ", newMode)
+      fabricRef.current.mode = newMode;
       setMode(newMode);
     }
   };
@@ -102,18 +109,6 @@ function App() {
       setSelectedObject(null);
     }
   };
-
-  fabricRef.current.on('mouse:down', (opt) => {
-    if (mode == 'draw') {
-      const circle = new fabric.Circle({
-        radius: 5,
-        fill: 'black',
-        left: opt.absolutePointer.x,
-        top: opt.absolutePointer.y,
-      });
-      canvas.add(circle);
-    }
-  })
 
   return (
     <div>
