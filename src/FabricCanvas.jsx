@@ -18,7 +18,6 @@ function fabricInit(canvas) {
   // Canvas pan
   canvas.on('mouse:down', function(opt) {
     var evt = opt.e;
-    console.log(opt);
     if (evt.altKey === true) {
       this.isDragging = true;
       this.selection = false;
@@ -46,16 +45,20 @@ function fabricInit(canvas) {
   });
 }
 
-export default function FabricCanvas() {
+export default function FabricCanvas(props) {
   const canvasRef = useRef(null);
   const fabricRef = useRef(null);
   const [selectedObject, setSelectedObject] = useState(null);
 
   useEffect(() => {
-    fabricRef.current = new fabric.Canvas(canvasRef.current, {
+    let canvas = new fabric.Canvas(canvasRef.current, {
       backgroundColor: "#ffffff",
     });
-    fabricInit(fabricRef.current);    
+    fabricRef.current = canvas;
+    fabricInit(canvas);    
+
+    canvas.on('mouse:move', (opt) => props.handleCurPosUpdate(opt.absolutePointer));
+
     // Add event handler for object selection
     fabricRef.current.on('selection:created', (e) => {
       setSelectedObject(e.selected[0]);
