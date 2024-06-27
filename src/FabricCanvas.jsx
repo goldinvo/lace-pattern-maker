@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { fabric } from 'fabric'
+import Toolbar from './Toolbar.jsx'
 
 
 function fabricInit(canvas) {
@@ -23,6 +24,14 @@ function fabricInit(canvas) {
       this.selection = false;
       this.lastPosX = evt.clientX;
       this.lastPosY = evt.clientY;
+    } else {
+      const circle = new fabric.Circle({
+        radius: 5,
+        fill: 'black',
+        left: opt.absolutePointer.x,
+        top: opt.absolutePointer.y,
+      });
+      canvas.add(circle);
     }
   });
   canvas.on('mouse:move', function(opt) {
@@ -45,19 +54,21 @@ function fabricInit(canvas) {
   });
 }
 
-export default function FabricCanvas(props) {
+export default function FabricCanvas() {
   const canvasRef = useRef(null);
   const fabricRef = useRef(null);
   const [selectedObject, setSelectedObject] = useState(null);
+  const [curPos, setCurPos] = useState({x: 0, y: 0});
+
 
   useEffect(() => {
     let canvas = new fabric.Canvas(canvasRef.current, {
-      backgroundColor: "#ffffff",
+      backgroundColor: "#eeeeee",
     });
     fabricRef.current = canvas;
     fabricInit(canvas);    
 
-    canvas.on('mouse:move', (opt) => props.handleCurPosUpdate(opt.absolutePointer));
+    canvas.on('mouse:move', (opt) => setCurPos(opt.absolutePointer));
 
     // Add event handler for object selection
     fabricRef.current.on('selection:created', (e) => {
@@ -104,6 +115,7 @@ export default function FabricCanvas(props) {
       <button onClick={deleteSelectedObject} disabled={!selectedObject}>
         Delete Selected Object
       </button>
+      <Toolbar curPos={curPos}/>
     </div>
   );
 };
