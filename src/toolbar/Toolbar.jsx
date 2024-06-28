@@ -13,7 +13,7 @@ import SelectPanel from "./SelectPanel.jsx"
 
 
 
-export default function Toolbar({curPos, mode, handleMode, snap, handleSnap, handleCopy}) {
+export default function Toolbar(props) {
   const [previousMode, setPreviousMode] = useState(null);
   
   function handleKeyDown(e) {
@@ -39,16 +39,16 @@ export default function Toolbar({curPos, mode, handleMode, snap, handleSnap, han
       window.removeEventListener('keyup', handleKeyUp);
     };
 
-  }, [mode, previousMode]);
+  }, [props.mode, previousMode]);
   return (
   <Stack 
     spacing={1}
     sx={{position: 'fixed', top: 60, right: 30}}
   >
     <ToggleButtonGroup
-      value={mode}
+      value={props.mode}
       exclusive
-      onChange={handleMode}
+      onChange={props.handleMode}
       size="small"
       aria-label="mode"
     >
@@ -63,15 +63,15 @@ export default function Toolbar({curPos, mode, handleMode, snap, handleSnap, han
       </ToggleButton>
     </ToggleButtonGroup>
 
-    { (mode === "select") && <SelectPanel handleCopy={handleCopy}/>}
+    { (props.mode === "select") && <SelectPanel handleCopy={props.handleCopy} handlePaste={props.handlePaste}/>}
 
     <FormControlLabel 
-      disabled={mode === "pan"}
-      control={<Switch checked={snap} onChange={handleSnap} />}
+      disabled={props.mode === "pan"}
+      control={<Switch checked={props.snap} onChange={props.handleSnap} />}
       label="Snap to Grid"
     />
 
-    <Chip label={"x:" + Math.round(curPos.x) + " y:" + Math.round(curPos.y)}/>
+    <Chip label={"x:" + Math.round(props.curPos.x) + " y:" + Math.round(props.curPos.y)}/>
   </Stack>
   )
 }

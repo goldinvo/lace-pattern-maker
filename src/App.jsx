@@ -220,6 +220,35 @@ function App() {
     });
   }
 
+  function handlePaste() {
+    let canvas = fabRef.current;
+    // clone again, so you can do multiple copies.
+    clipboard.clone(function(clonedObj) {
+      canvas.discardActiveObject();
+      clonedObj.set({
+        left: clonedObj.left + 10,
+        top: clonedObj.top + 10,
+        evented: true,
+      });
+      if (clonedObj.type === 'activeSelection') {
+        // active selection needs a reference to the canvas.
+        clonedObj.canvas = canvas;
+        clonedObj.forEachObject(function(obj) {
+          canvas.add(obj);
+        });
+        // this should solve the unselectability
+        clonedObj.setCoords();
+      } else {
+        canvas.add(clonedObj);
+      }
+      // _clipboard.top += 10;
+      // _clipboard.left += 10;
+      canvas.setActiveObject(clonedObj);
+      canvas.requestRenderAll();
+    });
+
+  }
+
   return (
     <div>
       <Header/>
@@ -233,6 +262,7 @@ function App() {
         snap={snap}
         handleSnap={handleSnap}
         handleCopy={handleCopy}
+        handlePaste={handlePaste}
       />
     </div>
   );
