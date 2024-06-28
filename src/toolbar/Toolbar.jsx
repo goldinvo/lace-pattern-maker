@@ -21,6 +21,8 @@ export default function Toolbar(props) {
     if (e.key === "Alt") {
       setPreviousMode(props.mode);
       props.handleMode(e,"pan");
+    } else if (e.key === "Backspace" && props.selectionExists) {
+      props.handleDelete();
     }
   }
   function handleKeyUp(e) {
@@ -40,7 +42,7 @@ export default function Toolbar(props) {
       window.removeEventListener('keyup', handleKeyUp);
     };
 
-  }, [props.mode, previousMode]);
+  }, [props.mode, previousMode, props.selectionExists]);
   return (
   <Stack 
     spacing={1}
@@ -67,7 +69,7 @@ export default function Toolbar(props) {
       </ToggleButton>
     </ToggleButtonGroup>
 
-    { (props.mode === "select") && <SelectPanel selectionExists={props.selectionExists} clipboard={props.clipboard} handleCopy={props.handleCopy} handlePaste={props.handlePaste}/>}
+    { (props.mode === "select") && <SelectPanel handleDelete={props.handleDelete} selectionExists={props.selectionExists} clipboard={props.clipboard} handleCopy={props.handleCopy} handlePaste={props.handlePaste}/>}
 
     <FormControlLabel 
       disabled={props.mode !== "draw" && props.mode !== "select"}

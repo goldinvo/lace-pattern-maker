@@ -189,8 +189,14 @@ function App() {
         canvas.setActiveObject(clonedObj);
         canvas.requestRenderAll();
       });
-    }
+    }  
+  }
 
+  function handleDelete() {
+    let canvas = fabRef.current;
+    let activeObject = canvas.getActiveObjects();
+    canvas.discardActiveObject();
+    canvas.remove(...activeObject);
   }
 
   let propagateState = {
@@ -199,6 +205,7 @@ function App() {
     mode, handleMode,
     snap, handleSnap,
     clipboard, handleCopy, handlePaste,
+    handleDelete,
   }
 
   return (

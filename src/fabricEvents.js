@@ -67,7 +67,6 @@ export function handleMouseMove(opt, canvas) {
       // TODO: what happens when you have groups?
     }
   }
-
   return opt.absolutePointer;
 }
 
