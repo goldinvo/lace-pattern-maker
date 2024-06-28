@@ -105,6 +105,9 @@ function App() {
       'mouse:down': handleMouseDown,
       'mouse:move': handleMouseMove,
       'mouse:up': handleMouseUp,
+      'selection:cleared': handleSelectionCleared,
+      'selection:updated': handleSelectionUpdated,
+      'selection:created': handleSelectionCreated,
     });
 
     // Cleanup on unmount
@@ -182,6 +185,19 @@ function App() {
     canvas.state.isDragging = false;
   }
 
+  function handleSelectionCleared(opt) {
+
+  }
+  
+  function handleSelectionUpdated(opt) {
+
+  }
+  
+  function handleSelectionCreated(opt) {
+
+  }
+  
+
   function handleMode(event, newMode){
     let canvas = fabRef.current;
     if (newMode !== null){
@@ -214,38 +230,42 @@ function App() {
 
   function handleCopy() {
     let canvas = fabRef.current;
-    canvas.getActiveObject().clone(function(cloned) {
-      setClipboard(cloned);
-      canvas.state.clipboard = cloned;
-    });
+    if (canvas.getActiveObject()) {
+      canvas.getActiveObject().clone(function(cloned) {
+        setClipboard(cloned);
+        canvas.state.clipboard = cloned;
+      });
+    }
   }
 
   function handlePaste() {
     let canvas = fabRef.current;
-    // clone again, so you can do multiple copies.
-    clipboard.clone(function(clonedObj) {
-      canvas.discardActiveObject();
-      clonedObj.set({
-        left: clonedObj.left + 10,
-        top: clonedObj.top + 10,
-        evented: true,
-      });
-      if (clonedObj.type === 'activeSelection') {
-        // active selection needs a reference to the canvas.
-        clonedObj.canvas = canvas;
-        clonedObj.forEachObject(function(obj) {
-          canvas.add(obj);
+    if (clipboard) {
+      // clone again, so you can do multiple copies.
+      clipboard.clone(function(clonedObj) {
+        canvas.discardActiveObject();
+        clonedObj.set({
+          left: clonedObj.left + 10,
+          top: clonedObj.top + 10,
+          evented: true,
         });
-        // this should solve the unselectability
-        clonedObj.setCoords();
-      } else {
-        canvas.add(clonedObj);
-      }
-      // _clipboard.top += 10;
-      // _clipboard.left += 10;
-      canvas.setActiveObject(clonedObj);
-      canvas.requestRenderAll();
-    });
+        if (clonedObj.type === 'activeSelection') {
+          // active selection needs a reference to the canvas.
+          clonedObj.canvas = canvas;
+          clonedObj.forEachObject(function(obj) {
+            canvas.add(obj);
+          });
+          // this should solve the unselectability
+          clonedObj.setCoords();
+        } else {
+          canvas.add(clonedObj);
+        }
+        // _clipboard.top += 10;
+        // _clipboard.left += 10;
+        canvas.setActiveObject(clonedObj);
+        canvas.requestRenderAll();
+      });
+    }
 
   }
 
@@ -263,6 +283,7 @@ function App() {
         handleSnap={handleSnap}
         handleCopy={handleCopy}
         handlePaste={handlePaste}
+        clipboard={clipboard}
       />
     </div>
   );

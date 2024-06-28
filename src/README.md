@@ -7,6 +7,7 @@ Any state that needs to be shared with React UI components has a corresponding u
 ## State members
 [Fabric member] (=> React member):
 - `(None)` => `curPos`
+- `(None)` => `isSelection`  (access selection using getActiveObjects)
 - `clipboard` => `clipboard`
 - `mode` => `mode` 'select' | 'pan' | 'draw'
 - `defaultCursor`*  update synchronously w/ `mode` *library state

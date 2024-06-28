@@ -4,7 +4,7 @@ export default function SelectPanel(props) {
     return (
         <>
         <Button variant="contained" onClick={props.handleCopy}>Copy</Button>
-        <Button variant="contained" onClick={props.handlePaste}>Paste</Button>
+        <Button disabled={props.clipboard===null} variant="contained" onClick={props.handlePaste}>Paste</Button>
         </>
     )
 }
