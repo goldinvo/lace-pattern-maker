@@ -2,23 +2,12 @@ import React, { useRef, useEffect, useState } from 'react'
 import Toolbar from './toolbar/Toolbar.jsx'
 import Header from './Header.jsx'
 import { fabric } from 'fabric'
+import * as fabricEvents from './fabricEvents.js'
+import {GRID_COLOR, CELL_SIZE} from './constants.js'
 
 fabric.Group.prototype.hasControls = false  // https://github.com/fabricjs/fabric.js/issues/1166
 
-const GRID_COLOR = '#d0d0d0';
-const CELL_SIZE = 30;
 
-const DOT_RADIUS = 5;
-
-const MAX_SCALE = 3;
-const MIN_SCALE = 0.3;
-
-function snapToGrid({x, y}) {
-  return {
-    x: Math.round(x / CELL_SIZE) * CELL_SIZE, 
-    y: Math.round(y / CELL_SIZE) * CELL_SIZE, 
-  };
-}
 
 function App() {
   const canvasRef = useRef(null);
@@ -101,13 +90,13 @@ function App() {
 
     // Fabric events handlers
     canvas.on({
-      'mouse:wheel': handleScroll,
-      'mouse:down': handleMouseDown,
-      'mouse:move': handleMouseMove,
-      'mouse:up': handleMouseUp,
-      'selection:cleared': handleSelectionCleared,
-      'selection:updated': handleSelectionUpdated,
-      'selection:created': handleSelectionCreated,
+      'mouse:wheel': (opt) => fabricEvents.handleScroll(opt, canvas),
+      'mouse:down': (opt) => fabricEvents.handleMouseDown(opt, canvas),
+      'mouse:move': (opt) => fabricEvents.handleMouseMove(opt, canvas, setCurPos),
+      'mouse:up': (opt) => fabricEvents.handleMouseUp(opt, canvas),
+      'selection:cleared': (opt) => fabricEvents.handleSelectionCleared(opt, canvas),
+      'selection:updated': (opt) => fabricEvents.handleSelectionUpdated(opt, canvas),
+      'selection:created': (opt) => fabricEvents.handleSelectionCreated(opt, canvas),
     });
 
     // Cleanup on unmount
@@ -115,88 +104,6 @@ function App() {
       fabRef.current.dispose();
     };
   }, []);
-
-  function handleScroll(opt) {
-    var zoom = fabRef.current.getZoom();
-    zoom *= .999 ** opt.e.deltaY;
-    if (zoom > MAX_SCALE) zoom = MAX_SCALE;
-    if (zoom < MIN_SCALE) zoom = MIN_SCALE;
-    fabRef.current.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
-    opt.e.preventDefault();
-    opt.e.stopPropagation();
-  }
-
-  function handleMouseDown(opt) {
-    let canvas = fabRef.current;
-    switch(canvas.state.mode) {
-      case 'pan':
-        canvas.state.isDragging = true;
-        canvas.state.lastPosX = opt.e.clientX;
-        canvas.state.lastPosY = opt.e.clientY;
-        break;
-      case 'draw':
-        let gridPoint = opt.absolutePointer;
-        if (canvas.state.snap) gridPoint = snapToGrid(gridPoint);
-
-        const circle = new fabric.Circle({
-          originX: 'center',
-          originY: 'center',
-          radius: DOT_RADIUS,
-          fill: 'black',
-          left: gridPoint.x,
-          top: gridPoint.y,
-          perPixelTargetFind: true,
-          hasControls: false,
-          hasBorders: false,
-        });
-        circle.on('selected', (opt) => {
-          opt.target.set('fill', 'red');
-        })
-        circle.on('deselected', (opt) => {
-          opt.target.set('fill', 'black');
-        })
-
-        fabRef.current.add(circle);
-        break;
-      case 'select':
-        // fabRef.current.selection = true; // should already be true anyway
-        break;
-    }
-  }
-
-  function handleMouseMove(opt) {
-    setCurPos(opt.absolutePointer)
-
-    if (fabRef.current.state.isDragging) {
-      var vpt = fabRef.current.viewportTransform;
-      vpt[4] += opt.e.clientX - fabRef.current.state.lastPosX;
-      vpt[5] += opt.e.clientY - fabRef.current.state.lastPosY;
-      fabRef.current.requestRenderAll();
-      fabRef.current.state.lastPosX = opt.e.clientX;
-      fabRef.current.state.lastPosY = opt.e.clientY;
-    }
-  }
-
-  function handleMouseUp(opt) {
-    let canvas = fabRef.current;
-    // on mouse up we want to recalculate new interaction
-    // for all objects, so we call setViewportTransform
-    canvas.setViewportTransform(canvas.viewportTransform);
-    canvas.state.isDragging = false;
-  }
-
-  function handleSelectionCleared(opt) {
-
-  }
-  
-  function handleSelectionUpdated(opt) {
-
-  }
-  
-  function handleSelectionCreated(opt) {
-
-  }
-  
 
   function handleMode(event, newMode){
     let canvas = fabRef.current;
