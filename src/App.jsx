@@ -3,13 +3,20 @@ import { fabric } from 'fabric'
 import Toolbar from './Toolbar.jsx'
 import Header from './Header.jsx'
 
-const GRID_COLOR = "#000000";
-const GRID_OPACITY = 0.3;
-const CELL_SIZE = 20;
+const GRID_COLOR = '#d0d0d0';
+const CELL_SIZE = 30;
+
+const DOT_RADIUS = 5;
 
 const MAX_SCALE = 3;
 const MIN_SCALE = 0.3;
 
+function snapToGrid({x, y}) {
+  return {
+    x: Math.round(x / CELL_SIZE) * CELL_SIZE, 
+    y: Math.round(y / CELL_SIZE) * CELL_SIZE, 
+  };
+}
 
 function App() {
   const canvasRef = useRef(null);
@@ -26,8 +33,10 @@ function App() {
       height: window.outerHeight,
       state: {},
     });
+    let canvas = fabRef.current;
+
     window.onresize = function() {
-      fabRef.current.setWidth(window.outerWidth);
+      canvas.setWidth(window.outerWidth);
       fabRef.current.setHeight(window.outerHeight);
     };
 
@@ -46,7 +55,7 @@ function App() {
           let offY = canvas.viewportTransform[5];
   
           ctx.save();
-          ctx.strokeStyle = "#dddddd";
+          ctx.strokeStyle = GRID_COLOR;
           ctx.lineWidth = 1;
   
           let gridSize = CELL_SIZE * zoom;
@@ -104,20 +113,31 @@ function App() {
   }
 
   function handleMouseDown(opt) {
-    var evt = opt.e;
-    if (fabRef.current.state.mode === 'pan') {
-      fabRef.current.state.isDragging = true;
-      fabRef.current.selection = false;
-      fabRef.current.state.lastPosX = evt.clientX;
-      fabRef.current.state.lastPosY = evt.clientY;
-    } else if (fabRef.current.state.mode == 'draw') {
-      const circle = new fabric.Circle({
-        radius: 5,
-        fill: 'black',
-        left: opt.absolutePointer.x,
-        top: opt.absolutePointer.y,
-      });
-      fabRef.current.add(circle);
+    let canvas = fabRef.current;
+    switch(canvas.state.mode) {
+      case 'pan':
+        console.log(snapToGrid(opt.absolutePointer))
+        canvas.state.isDragging = true;
+        canvas.selection = false;
+        canvas.state.lastPosX = opt.e.clientX;
+        canvas.state.lastPosY = opt.e.clientY;
+        break;
+      case 'draw':
+        canvas.selection = false;
+        let gridPoint = snapToGrid(opt.absolutePointer);
+        const circle = new fabric.Circle({
+          originX: 'center',
+          originY: 'center',
+          radius: DOT_RADIUS,
+          fill: 'black',
+          left: gridPoint.x,
+          top: gridPoint.y,
+        });
+        fabRef.current.add(circle);
+        break;
+      case 'select':
+        // fabRef.current.selection = true; // should already be true anyway
+        break;
     }
   }
 

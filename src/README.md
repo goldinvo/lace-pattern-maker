@@ -6,5 +6,10 @@ Any state that needs to be shared with React UI components has a corresponding u
 
 ## State members
 [Fabric member] (=> React member):
-- `` => `curPos`
+- `(None)` => `curPos`
 - `mode` => `mode` 'select' | 'pan' | 'draw'
+- `defaultCursor`*  update synchronously w/ `mode` *library state
+- isDragging
+- selection*    *library state
+- lastPosX
+- lastPosY
