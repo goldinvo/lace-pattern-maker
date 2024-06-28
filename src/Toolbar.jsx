@@ -1,5 +1,5 @@
 
-import * as React from 'react';
+import { useEffect, useState } from 'react'
 import AdjustOutlinedIcon from '@mui/icons-material/AdjustOutlined';
 import PanToolOutlinedIcon from '@mui/icons-material/PanToolOutlined';
 import ModeOutlinedIcon from '@mui/icons-material/ModeOutlined';
@@ -11,6 +11,32 @@ import Stack from '@mui/material/Stack';
 
 
 export default function Toolbar({curPos, mode, handleMode}) {
+  const [previousMode, setPreviousMode] = useState(null);
+  
+  function handleKeyDown(e) {
+    if (e.key === "Alt") {
+      setPreviousMode(mode);
+      handleMode(e,"pan");
+    }
+  }
+  function handleKeyUp(e) {
+    if (e.key === "Alt") {
+      handleMode(e, previousMode);
+      setPreviousMode(null);
+    }
+  }
+
+  useEffect(() => {   
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+
+  }, [mode, previousMode]);
   return (
   <Stack 
     spacing={1}
