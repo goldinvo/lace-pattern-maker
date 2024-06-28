@@ -39,9 +39,14 @@ export function handleMouseDown(opt, canvas) {
         hasControls: false,
         hasBorders: false,
       });
-      
       canvas.add(circle);
       break;
+    case 'delete':
+      canvas.state.isDeleting = true;
+      if (opt.target) {
+        canvas.remove(opt.target);
+        // TODO: what happens when you have groups?
+      }
     case 'select':
       // canvas.selection = true; // should already be true anyway
       break;
@@ -56,6 +61,11 @@ export function handleMouseMove(opt, canvas) {
     canvas.requestRenderAll();
     canvas.state.lastPosX = opt.e.clientX;
     canvas.state.lastPosY = opt.e.clientY;
+  } else if (canvas.state.isDeleting) {
+    if (opt.target) {
+      canvas.remove(opt.target);
+      // TODO: what happens when you have groups?
+    }
   }
 
   return opt.absolutePointer;
@@ -66,6 +76,7 @@ export function handleMouseUp(opt, canvas) {
   // for all objects, so we call setViewportTransform
   canvas.setViewportTransform(canvas.viewportTransform);
   canvas.state.isDragging = false;
+  canvas.state.isDeleting = false;
 }
 
 export function handleSelectionCreated(opt, canvas) {

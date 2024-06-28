@@ -9,7 +9,8 @@ import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import SelectPanel from "./SelectPanel.jsx"
+import SelectPanel from "./SelectPanel.jsx";
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
 
 
@@ -18,13 +19,13 @@ export default function Toolbar(props) {
   
   function handleKeyDown(e) {
     if (e.key === "Alt") {
-      setPreviousMode(mode);
-      handleMode(e,"pan");
+      setPreviousMode(props.mode);
+      props.handleMode(e,"pan");
     }
   }
   function handleKeyUp(e) {
-    if (e.key === "Alt") {
-      handleMode(e, previousMode);
+    if (previousMode && e.key === "Alt") {
+      props.handleMode(e, previousMode);
       setPreviousMode(null);
     }
   }
@@ -61,12 +62,15 @@ export default function Toolbar(props) {
       <ToggleButton value="draw" aria-label="draw">
         <ModeOutlinedIcon />
       </ToggleButton>
+      <ToggleButton value="delete" aria-label="delete">
+        <DeleteOutlinedIcon />
+      </ToggleButton>
     </ToggleButtonGroup>
 
     { (props.mode === "select") && <SelectPanel selectionExists={props.selectionExists} clipboard={props.clipboard} handleCopy={props.handleCopy} handlePaste={props.handlePaste}/>}
 
     <FormControlLabel 
-      disabled={props.mode === "pan"}
+      disabled={props.mode !== "draw" && props.mode !== "select"}
       control={<Switch checked={props.snap} onChange={props.handleSnap} />}
       label="Snap to Grid"
     />

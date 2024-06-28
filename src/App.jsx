@@ -123,16 +123,25 @@ function App() {
           canvas.defaultCursor = 'default';
           canvas.selection = true;
           canvas.skipTargetFind = false;
+          fabric.Object.prototype.selectable = true;
           break;
         case 'pan':
           canvas.defaultCursor = 'grab';
           canvas.selection = false;
           canvas.skipTargetFind = true;
+          fabric.Object.prototype.selectable = true;
           break;
         case 'draw':
           canvas.defaultCursor = 'crosshair';
           canvas.selection = false;
           canvas.skipTargetFind = true;
+          fabric.Object.prototype.selectable = false;
+          break;
+        case 'delete':
+          canvas.defaultCursor = 'crosshair';
+          canvas.selection = false;
+          canvas.skipTargetFind = false;
+          fabric.Object.prototype.selectable = false;
           break;
       }
     }
@@ -141,7 +150,6 @@ function App() {
   function handleSnap(event) {
     setSnap(event.target.checked);
     fabRef.current.state.snap = event.target.checked;
-    console.log(selectionExists);
   }
 
   function handleCopy() {
