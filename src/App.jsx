@@ -105,7 +105,7 @@ function App() {
 
   function handleMouseDown(opt) {
     var evt = opt.e;
-    if (evt.altKey === true) {
+    if (fabRef.current.state.mode === 'pan') {
       fabRef.current.state.isDragging = true;
       fabRef.current.selection = false;
       fabRef.current.state.lastPosX = evt.clientX;
@@ -144,8 +144,11 @@ function App() {
 
   function handleMode(event, newMode){
     if (newMode !== null){
-      fabRef.current.state.mode = newMode;
       setMode(newMode);
+      fabRef.current.state.mode = newMode;
+      if (newMode === 'select') fabRef.current.defaultCursor = 'default';
+      else if (newMode === 'pan') fabRef.current.defaultCursor = 'grab';
+      else fabRef.current.defaultCursor = 'crosshair';
     }
   };
 
