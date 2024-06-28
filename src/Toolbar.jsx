@@ -8,10 +8,11 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 
 
-export default function Toolbar({curPos, mode, handleMode}) {
+export default function Toolbar({curPos, mode, handleMode, snap, handleSnap}) {
   const [previousMode, setPreviousMode] = useState(null);
   
   function handleKeyDown(e) {
@@ -60,6 +61,13 @@ export default function Toolbar({curPos, mode, handleMode}) {
         <ModeOutlinedIcon />
       </ToggleButton>
     </ToggleButtonGroup>
+
+    <FormControlLabel 
+      control={<Switch checked={snap} onChange={handleSnap} />}
+      label="Snap to Grid"
+    />
+
+    
     <Chip label={"x:" + Math.round(curPos.x) + " y:" + Math.round(curPos.y)}/>
   </Stack>
   )

@@ -33,7 +33,9 @@ function App() {
       width: window.outerWidth,
       height: window.outerHeight,
       perPixelTargetFind: true,
-      state: {},
+      state: {
+        snap: true,
+      },
     });
     let canvas = fabRef.current;
 
@@ -124,7 +126,9 @@ function App() {
         canvas.state.lastPosY = opt.e.clientY;
         break;
       case 'draw':
-        let gridPoint = snapToGrid(opt.absolutePointer);
+        let gridPoint = opt.absolutePointer;
+        if (canvas.state.snap) gridPoint = snapToGrid(gridPoint);
+
         const circle = new fabric.Circle({
           originX: 'center',
           originY: 'center',
@@ -190,8 +194,9 @@ function App() {
     }
   };
 
-  function handleSnap(event, newSnap) {
-
+  function handleSnap(event) {
+    setSnap(event.target.checked);
+    fabRef.current.state.snap = event.target.checked;
   }
 
   return (
@@ -204,6 +209,8 @@ function App() {
         curPos={curPos} 
         mode={mode} 
         handleMode={handleMode}
+        snap={snap}
+        handleSnap={handleSnap}
       />
     </div>
   );

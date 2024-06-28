@@ -14,3 +14,4 @@ Any state that needs to be shared with React UI components has a corresponding u
 - isDragging
 - lastPosX
 - lastPosY
+- `snap` => `snap`
