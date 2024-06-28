@@ -32,7 +32,7 @@ function App() {
       backgroundColor: "#ffffe9",
       width: window.outerWidth,
       height: window.outerHeight,
-      perPixelTargetFind: true,
+      hoverCursor: 'pointer',
       state: {
         snap: true,
       },
@@ -41,7 +41,7 @@ function App() {
 
     window.onresize = function() {
       canvas.setWidth(window.outerWidth);
-      fabRef.current.setHeight(window.outerHeight);
+      canvas.setHeight(window.outerHeight);
     };
 
     // Initialize grid https://stackoverflow.com/questions/68604136/fabric-js-canvas-infinite-background-grid-like-miro
@@ -91,14 +91,19 @@ function App() {
     });
   
     let bg = new infBGrid();
-    fabRef.current.add(bg);
-    fabRef.current.renderAll();
+    canvas.add(bg);
+    canvas.renderAll();
 
     // Fabric events handlers
-    fabRef.current.on('mouse:wheel', handleScroll);
-    fabRef.current.on('mouse:down', handleMouseDown);
-    fabRef.current.on('mouse:move', handleMouseMove);
-    fabRef.current.on('mouse:up', handleMouseUp); 
+    canvas.on({
+      'mouse:wheel': handleScroll,
+      'mouse:down': handleMouseDown,
+      'mouse:move': handleMouseMove,
+      'mouse:up': handleMouseUp,
+      // 'selection:updated': () => {
+
+      // }
+    });
 
     // Cleanup on unmount
     return () => {
@@ -136,10 +141,17 @@ function App() {
           fill: 'black',
           left: gridPoint.x,
           top: gridPoint.y,
-
+          perPixelTargetFind: true,
           hasControls: false,
           hasBorders: false,
         });
+        circle.on('selected', (opt) => {
+          opt.target.set('fill', 'red');
+        })
+        circle.on('deselected', (opt) => {
+          opt.target.set('fill', 'black');
+        })
+
         fabRef.current.add(circle);
         break;
       case 'select':
