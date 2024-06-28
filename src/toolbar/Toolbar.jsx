@@ -63,7 +63,7 @@ export default function Toolbar(props) {
       </ToggleButton>
     </ToggleButtonGroup>
 
-    { (props.mode === "select") && <SelectPanel clipboard={props.clipboard} handleCopy={props.handleCopy} handlePaste={props.handlePaste}/>}
+    { (props.mode === "select") && <SelectPanel selectionExists={props.selectionExists} clipboard={props.clipboard} handleCopy={props.handleCopy} handlePaste={props.handlePaste}/>}
 
     <FormControlLabel 
       disabled={props.mode === "pan"}

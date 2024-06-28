@@ -3,7 +3,7 @@ import Toolbar from './toolbar/Toolbar.jsx'
 import Header from './Header.jsx'
 import { fabric } from 'fabric'
 import * as fabricEvents from './fabricEvents.js'
-import {GRID_COLOR, CELL_SIZE} from './constants.js'
+import {GRID_COLOR, CELL_SIZE, BACKGROUND_COLOR} from './constants.js'
 
 fabric.Group.prototype.hasControls = false  // https://github.com/fabricjs/fabric.js/issues/1166
 
@@ -17,11 +17,12 @@ function App() {
   const [mode, setMode] = useState('select');
   const [snap, setSnap] = useState(true);
   const [clipboard, setClipboard] = useState(null);
+  const [selectionExists, setSelectionExists] = useState(false);
 
   useEffect(() => {
     // Initialize fabric
     fabRef.current = new fabric.Canvas(canvasRef.current, {
-      backgroundColor: "#ffffe9",
+      backgroundColor: BACKGROUND_COLOR,
       width: window.outerWidth,
       height: window.outerHeight,
       hoverCursor: 'pointer',
@@ -92,11 +93,18 @@ function App() {
     canvas.on({
       'mouse:wheel': (opt) => fabricEvents.handleScroll(opt, canvas),
       'mouse:down': (opt) => fabricEvents.handleMouseDown(opt, canvas),
-      'mouse:move': (opt) => fabricEvents.handleMouseMove(opt, canvas, setCurPos),
+      'mouse:move': (opt) => setCurPos(fabricEvents.handleMouseMove(opt, canvas)),
       'mouse:up': (opt) => fabricEvents.handleMouseUp(opt, canvas),
-      'selection:cleared': (opt) => fabricEvents.handleSelectionCleared(opt, canvas),
+
+      'selection:created': (opt) => {
+        setSelectionExists(true);
+        fabricEvents.handleSelectionCreated(opt, canvas);
+      },
       'selection:updated': (opt) => fabricEvents.handleSelectionUpdated(opt, canvas),
-      'selection:created': (opt) => fabricEvents.handleSelectionCreated(opt, canvas),
+      'selection:cleared': (opt) => {
+        setSelectionExists(false);
+        fabricEvents.handleSelectionCleared(opt, canvas);
+      },
     });
 
     // Cleanup on unmount
@@ -133,6 +141,7 @@ function App() {
   function handleSnap(event) {
     setSnap(event.target.checked);
     fabRef.current.state.snap = event.target.checked;
+    console.log(selectionExists);
   }
 
   function handleCopy() {
@@ -176,22 +185,21 @@ function App() {
 
   }
 
+  let propagateState = {
+    curPos, 
+    selectionExists,
+    mode, handleMode,
+    snap, handleSnap,
+    clipboard, handleCopy, handlePaste,
+  }
+
   return (
     <div>
       <Header/>
       <canvas ref={canvasRef}> 
         Could not load canvas. Please update browser or enable JavaScript.
       </canvas>
-      <Toolbar 
-        curPos={curPos} 
-        mode={mode} 
-        handleMode={handleMode}
-        snap={snap}
-        handleSnap={handleSnap}
-        handleCopy={handleCopy}
-        handlePaste={handlePaste}
-        clipboard={clipboard}
-      />
+      <Toolbar {...propagateState}/>
     </div>
   );
 };

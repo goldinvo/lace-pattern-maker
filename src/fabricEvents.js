@@ -1,17 +1,17 @@
-import {DOT_RADIUS, MIN_SCALE, MAX_SCALE, CELL_SIZE} from './constants.js'
+import * as constants from './constants.js'
 
 function snapToGrid({x, y}) {
   return {
-    x: Math.round(x / CELL_SIZE) * CELL_SIZE, 
-    y: Math.round(y / CELL_SIZE) * CELL_SIZE, 
+    x: Math.round(x / constants.CELL_SIZE) * constants.CELL_SIZE, 
+    y: Math.round(y / constants.CELL_SIZE) * constants.CELL_SIZE, 
   };
 }
 
 export function handleScroll(opt, canvas) {
   var zoom = canvas.getZoom();
   zoom *= .999 ** opt.e.deltaY;
-  if (zoom > MAX_SCALE) zoom = MAX_SCALE;
-  if (zoom < MIN_SCALE) zoom = MIN_SCALE;
+  if (zoom > constants.MAX_SCALE) zoom = constants.MAX_SCALE;
+  if (zoom < constants.MIN_SCALE) zoom = constants.MIN_SCALE;
   canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
   opt.e.preventDefault();
   opt.e.stopPropagation();
@@ -31,8 +31,8 @@ export function handleMouseDown(opt, canvas) {
       const circle = new fabric.Circle({
         originX: 'center',
         originY: 'center',
-        radius: DOT_RADIUS,
-        fill: 'black',
+        radius: constants.DOT_RADIUS,
+        fill: constants.DRAW_COLOR,
         left: gridPoint.x,
         top: gridPoint.y,
         perPixelTargetFind: true,
@@ -54,9 +54,7 @@ export function handleMouseDown(opt, canvas) {
   }
 }
 
-export function handleMouseMove(opt, canvas, setCurPos) {
-  setCurPos(opt.absolutePointer)
-
+export function handleMouseMove(opt, canvas) {
   if (canvas.state.isDragging) {
     let vpt = canvas.viewportTransform;
     vpt[4] += opt.e.clientX - canvas.state.lastPosX;
@@ -65,6 +63,8 @@ export function handleMouseMove(opt, canvas, setCurPos) {
     canvas.state.lastPosX = opt.e.clientX;
     canvas.state.lastPosY = opt.e.clientY;
   }
+
+  return opt.absolutePointer;
 }
 
 export function handleMouseUp(opt, canvas) {
@@ -74,14 +74,18 @@ export function handleMouseUp(opt, canvas) {
   canvas.state.isDragging = false;
 }
 
-export function handleSelectionCleared(opt, canvas) {
-
+export function handleSelectionCreated(opt, canvas) {
+  console.log('Created')
+  console.log(opt)
 }
 
 export function handleSelectionUpdated(opt, canvas) {
-
+  console.log('Updated')
+  console.log(opt)
 }
 
-export function handleSelectionCreated(opt, canvas) {
-
+export function handleSelectionCleared(opt, canvas) {
+  console.log('Cleared')
+  console.log(opt)
 }
+
