@@ -1,12 +1,12 @@
-import './Header.css'
+import AppBar from '@mui/material/AppBar';
 
 export default function Header() {
   return (
-    <header>
+    <AppBar>
         <div>
             <div>goldinvo.com</div>
             <div>/lace-pattern-tool</div>
         </div>
-    </header>
+    </AppBar>
   )
 }

@@ -5,12 +5,17 @@ import PanToolOutlinedIcon from '@mui/icons-material/PanToolOutlined';
 import ModeOutlinedIcon from '@mui/icons-material/ModeOutlined';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
+
+
+
 export default function Toolbar({curPos, mode, handleMode}) {
   return (
-  <>
-    <div>
-        x: {Math.round(curPos.x)}, y: {Math.round(curPos.y)}
-    </div>
+  <Stack 
+    spacing={1}
+    sx={{position: 'fixed', top: 60, right: 30}}
+  >
     <ToggleButtonGroup
       value={mode}
       exclusive
@@ -28,6 +33,7 @@ export default function Toolbar({curPos, mode, handleMode}) {
         <ModeOutlinedIcon />
       </ToggleButton>
     </ToggleButtonGroup>
-  </>
+    <Chip label={"x:" + Math.round(curPos.x) + " y:" + Math.round(curPos.y)}/>
+  </Stack>
   )
 }

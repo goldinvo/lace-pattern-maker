@@ -21,9 +21,15 @@ function App() {
   useEffect(() => {
     // Initialize fabric
     fabRef.current = new fabric.Canvas(canvasRef.current, {
-      backgroundColor: "#fefefe",
+      backgroundColor: "#ffffe9",
+      width: window.outerWidth,
+      height: window.outerHeight,
       state: {},
     });
+    window.onresize = function() {
+      fabRef.current.setWidth(window.outerWidth);
+      fabRef.current.setHeight(window.outerHeight);
+    };
 
     // Initialize grid https://stackoverflow.com/questions/68604136/fabric-js-canvas-infinite-background-grid-like-miro
     var infBGrid = fabric.util.createClass(fabric.Object, { 
@@ -146,7 +152,7 @@ function App() {
   return (
     <div>
       <Header/>
-      <canvas ref={canvasRef} width="800" height="600"> 
+      <canvas ref={canvasRef}> 
         Could not load canvas. Please update browser or enable JavaScript.
       </canvas>
       <Toolbar curPos={curPos} mode={mode} handleMode={handleMode}/>
