@@ -24,6 +24,7 @@ function App() {
 
   const [curPos, setCurPos] = useState({x: 0, y: 0});
   const [mode, setMode] = useState('select');
+  const [snap, setSnap] = useState(true);
 
   useEffect(() => {
     // Initialize fabric
@@ -31,6 +32,7 @@ function App() {
       backgroundColor: "#ffffe9",
       width: window.outerWidth,
       height: window.outerHeight,
+      perPixelTargetFind: true,
       state: {},
     });
     let canvas = fabRef.current;
@@ -118,12 +120,10 @@ function App() {
       case 'pan':
         console.log(snapToGrid(opt.absolutePointer))
         canvas.state.isDragging = true;
-        canvas.selection = false;
         canvas.state.lastPosX = opt.e.clientX;
         canvas.state.lastPosY = opt.e.clientY;
         break;
       case 'draw':
-        canvas.selection = false;
         let gridPoint = snapToGrid(opt.absolutePointer);
         const circle = new fabric.Circle({
           originX: 'center',
@@ -132,6 +132,9 @@ function App() {
           fill: 'black',
           left: gridPoint.x,
           top: gridPoint.y,
+
+          hasControls: false,
+          hasBorders: false,
         });
         fabRef.current.add(circle);
         break;
@@ -155,22 +158,41 @@ function App() {
   }
 
   function handleMouseUp(opt) {
+    let canvas = fabRef.current;
     // on mouse up we want to recalculate new interaction
     // for all objects, so we call setViewportTransform
-    fabRef.current.setViewportTransform(fabRef.current.viewportTransform);
-    fabRef.current.state.isDragging = false;
-    fabRef.current.selection = true;
+    canvas.setViewportTransform(canvas.viewportTransform);
+    canvas.state.isDragging = false;
   }
 
   function handleMode(event, newMode){
+    let canvas = fabRef.current;
     if (newMode !== null){
       setMode(newMode);
-      fabRef.current.state.mode = newMode;
-      if (newMode === 'select') fabRef.current.defaultCursor = 'default';
-      else if (newMode === 'pan') fabRef.current.defaultCursor = 'grab';
-      else fabRef.current.defaultCursor = 'crosshair';
+      canvas.state.mode = newMode;
+      switch (newMode) {
+        case 'select':
+          canvas.defaultCursor = 'default';
+          canvas.selection = true;
+          canvas.skipTargetFind = false;
+          break;
+        case 'pan':
+          canvas.defaultCursor = 'grab';
+          canvas.selection = false;
+          canvas.skipTargetFind = true;
+          break;
+        case 'draw':
+          canvas.defaultCursor = 'crosshair';
+          canvas.selection = false;
+          canvas.skipTargetFind = true;
+          break;
+      }
     }
   };
+
+  function handleSnap(event, newSnap) {
+
+  }
 
   return (
     <div>
@@ -178,7 +200,11 @@ function App() {
       <canvas ref={canvasRef}> 
         Could not load canvas. Please update browser or enable JavaScript.
       </canvas>
-      <Toolbar curPos={curPos} mode={mode} handleMode={handleMode}/>
+      <Toolbar 
+        curPos={curPos} 
+        mode={mode} 
+        handleMode={handleMode}
+      />
     </div>
   );
 };
