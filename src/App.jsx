@@ -1,7 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react'
-import { fabric } from 'fabric'
 import Toolbar from './Toolbar.jsx'
 import Header from './Header.jsx'
+import { fabric } from 'fabric'
+
+fabric.Group.prototype.hasControls = false  // https://github.com/fabricjs/fabric.js/issues/1166
+
 
 const GRID_COLOR = '#d0d0d0';
 const CELL_SIZE = 30;
@@ -33,12 +36,14 @@ function App() {
       width: window.outerWidth,
       height: window.outerHeight,
       hoverCursor: 'pointer',
+      hasControls: false,
       state: {
         snap: true,
       },
     });
     let canvas = fabRef.current;
 
+    
     window.onresize = function() {
       canvas.setWidth(window.outerWidth);
       canvas.setHeight(window.outerHeight);
