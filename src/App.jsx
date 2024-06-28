@@ -5,7 +5,6 @@ import { fabric } from 'fabric'
 
 fabric.Group.prototype.hasControls = false  // https://github.com/fabricjs/fabric.js/issues/1166
 
-
 const GRID_COLOR = '#d0d0d0';
 const CELL_SIZE = 30;
 
@@ -28,6 +27,7 @@ function App() {
   const [curPos, setCurPos] = useState({x: 0, y: 0});
   const [mode, setMode] = useState('select');
   const [snap, setSnap] = useState(true);
+  const [clipboard, setClipboard] = useState(null);
 
   useEffect(() => {
     // Initialize fabric
@@ -105,9 +105,6 @@ function App() {
       'mouse:down': handleMouseDown,
       'mouse:move': handleMouseMove,
       'mouse:up': handleMouseUp,
-      // 'selection:updated': () => {
-
-      // }
     });
 
     // Cleanup on unmount
@@ -130,7 +127,6 @@ function App() {
     let canvas = fabRef.current;
     switch(canvas.state.mode) {
       case 'pan':
-        console.log(snapToGrid(opt.absolutePointer))
         canvas.state.isDragging = true;
         canvas.state.lastPosX = opt.e.clientX;
         canvas.state.lastPosY = opt.e.clientY;
@@ -216,6 +212,14 @@ function App() {
     fabRef.current.state.snap = event.target.checked;
   }
 
+  function handleCopy() {
+    let canvas = fabRef.current;
+    canvas.getActiveObject().clone(function(cloned) {
+      setClipboard(cloned);
+      canvas.state.clipboard = cloned;
+    });
+  }
+
   return (
     <div>
       <Header/>
@@ -228,6 +232,7 @@ function App() {
         handleMode={handleMode}
         snap={snap}
         handleSnap={handleSnap}
+        handleCopy={handleCopy}
       />
     </div>
   );

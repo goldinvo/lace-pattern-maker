@@ -9,10 +9,11 @@ import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import SelectPanel from "./SelectPanel.jsx"
 
 
 
-export default function Toolbar({curPos, mode, handleMode, snap, handleSnap}) {
+export default function Toolbar({curPos, mode, handleMode, snap, handleSnap, handleCopy}) {
   const [previousMode, setPreviousMode] = useState(null);
   
   function handleKeyDown(e) {
@@ -61,6 +62,8 @@ export default function Toolbar({curPos, mode, handleMode, snap, handleSnap}) {
         <ModeOutlinedIcon />
       </ToggleButton>
     </ToggleButtonGroup>
+
+    { (mode === "select") && <SelectPanel handleCopy={handleCopy}/>}
 
     <FormControlLabel 
       disabled={mode === "pan"}
