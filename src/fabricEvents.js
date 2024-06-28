@@ -39,13 +39,7 @@ export function handleMouseDown(opt, canvas) {
         hasControls: false,
         hasBorders: false,
       });
-      circle.on('selected', (opt) => {
-        opt.target.set('fill', 'red');
-      })
-      circle.on('deselected', (opt) => {
-        opt.target.set('fill', 'black');
-      })
-
+      
       canvas.add(circle);
       break;
     case 'select':
@@ -75,17 +69,15 @@ export function handleMouseUp(opt, canvas) {
 }
 
 export function handleSelectionCreated(opt, canvas) {
-  console.log('Created')
-  console.log(opt)
+  opt.selected.map(object => object.set('fill', 'red'));
 }
 
 export function handleSelectionUpdated(opt, canvas) {
-  console.log('Updated')
-  console.log(opt)
+  opt.selected.map(object => object.set('fill', 'red'));
+  opt.deselected.map(object => object.set('fill', 'black'));
 }
 
 export function handleSelectionCleared(opt, canvas) {
-  console.log('Cleared')
-  console.log(opt)
+  opt.deselected.map(object => object.set('fill', 'black'));
 }
 
