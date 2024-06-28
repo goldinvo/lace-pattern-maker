@@ -63,11 +63,11 @@ export default function Toolbar({curPos, mode, handleMode, snap, handleSnap}) {
     </ToggleButtonGroup>
 
     <FormControlLabel 
+      disabled={mode === "pan"}
       control={<Switch checked={snap} onChange={handleSnap} />}
       label="Snap to Grid"
     />
 
-    
     <Chip label={"x:" + Math.round(curPos.x) + " y:" + Math.round(curPos.y)}/>
   </Stack>
   )

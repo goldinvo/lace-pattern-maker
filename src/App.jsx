@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react'
-import Toolbar from './Toolbar.jsx'
+import Toolbar from './toolbar/Toolbar.jsx'
 import Header from './Header.jsx'
 import { fabric } from 'fabric'
 
