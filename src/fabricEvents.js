@@ -106,8 +106,8 @@ export function handleMouseDown(opt, canvas) {
             let p3 = new fabric.Circle({
               originX: 'center',
               originY: 'center',
-              radius: constants.DOT_RADIUS,
-              fill: constants.META_COLOR,
+              radius: constants.DOT_RADIUS * 1.75,
+              fill: constants.SELECT_COLOR,
               left: p3Coords.x,
               top: p3Coords.y,
               perPixelTargetFind: true,
@@ -117,16 +117,18 @@ export function handleMouseDown(opt, canvas) {
             canvas.add(p3);
             canvas.state.p3 = p3;
 
+          } else if ( // replicate behavior of perPixelTargetFind
+            canvas.state.p3.containsPoint(opt.pointer)
+            && !canvas.isTargetTransparent(canvas.state.p3, opt.pointer.x, opt.pointer.y) 
+          ) {
+            canvas.state.isBending = true;
           } else {
-            if (!canvas.state.p3) console.log("Unexpected behavior");
-            if ( // replicate behavior of perPixelTargetFind
-              canvas.state.p3.containsPoint(opt.pointer)
-              && !canvas.isTargetTransparent(canvas.state.p3, opt.pointer.x, opt.pointer.y) 
-            ) {
-              canvas.state.isBending = true;
-            } else {
-              // cleanup
-            }
+            canvas.state.isBending = false;
+            canvas.remove(canvas.state.p1);
+            canvas.remove(canvas.state.p2);
+            canvas.remove(canvas.state.p3);
+            canvas.state.p1 = canvas.state.p2 = canvas.state.p3 = null;
+            canvas.state.curLine = null;
           }
           break;
         default:
@@ -182,7 +184,6 @@ export function handleMouseMove(opt, canvas) {
     canvas.remove(canvas.state.curLine);
     canvas.add(newLine);
     canvas.state.curLine = newLine;
-
   }
   return opt.absolutePointer;
 }
@@ -201,20 +202,27 @@ export function handleMouseUp(opt, canvas) {
     canvas.remove(canvas.state.p2);
     canvas.remove(canvas.state.p3);
     canvas.state.p1 = canvas.state.p2 = canvas.state.p3 = null;
+    canvas.state.curLine = null;
   }
 
 }
 
 export function handleSelectionCreated(opt, canvas) {
-  opt.selected.map(object => object.set('fill', 'red'));
+  handleSelectionUpdated(opt, canvas);
 }
 
 export function handleSelectionUpdated(opt, canvas) {
-  opt.selected.map(object => object.set('fill', 'red'));
-  opt.deselected.map(object => object.set('fill', 'black'));
+  function setColor(color) {
+    return (object) => {
+      let target = object.fill === '' ? 'stroke' : 'fill'; // unfilled implies object colored by stroke
+      object.set(target, color)
+    }
+  }
+  opt.selected && opt.selected.map(setColor(constants.SELECT_COLOR));
+  opt.deselected && opt.deselected.map(setColor(constants.DRAW_COLOR));
 }
 
 export function handleSelectionCleared(opt, canvas) {
-  opt.deselected.map(object => object.set('fill', 'black'));
+  handleSelectionUpdated(opt, canvas);
 }
 

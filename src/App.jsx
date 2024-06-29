@@ -28,6 +28,7 @@ function App() {
       height: window.outerHeight,
       hoverCursor: 'pointer',
       hasControls: false,
+      selectionFullyContained: true, // watch this issue: https://github.com/fabricjs/fabric.js/issues/3773
       state: {
         mode: 'select',
         drawMode: 'point',
@@ -122,6 +123,13 @@ function App() {
     if (newMode !== null){
       setMode(newMode);
       canvas.state.mode = newMode;
+      canvas.state.isBending = false;
+      canvas.remove(canvas.state.p1);
+      canvas.remove(canvas.state.p2);
+      canvas.remove(canvas.state.p3);
+      canvas.state.p1 = canvas.state.p2 = canvas.state.p3 = null;
+      canvas.state.curLine = null;
+      
       switch (newMode) {
         case 'select':
           canvas.defaultCursor = 'default';
