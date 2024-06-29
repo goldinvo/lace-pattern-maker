@@ -1,6 +1,5 @@
 import * as constants from './constants.js'
-
-import resetState from './utils.js'
+import * as utils from './utils.js'
 
 function snapToGrid({x, y}) {
   return {
@@ -33,36 +32,26 @@ export function handleMouseDown(opt, canvas) {
           if (canvas.state.snap) coords = snapToGrid(coords);
 
           const circle = new fabric.Circle({
-            originX: 'center',
-            originY: 'center',
-            radius: constants.DOT_RADIUS,
-            fill: constants.DRAW_COLOR,
+            ...utils.defaultCircle,
             left: coords.x,
             top: coords.y,
-            perPixelTargetFind: true,
-            hasControls: false,
-            hasBorders: false,
           });
           canvas.add(circle);
           break;
         case 'line':
           if (!canvas.state.p1) {
-            let coords = opt.absolutePointer;
-            if (canvas.state.snap) coords = snapToGrid(coords);
+            let p1Coords = opt.absolutePointer;
+            if (canvas.state.snap) p1Coords = snapToGrid(p1Coords);
 
             let p1 = new fabric.Circle({
-              originX: 'center',
-              originY: 'center',
-              radius: constants.DOT_RADIUS,
+              ...utils.defaultCircle,
               fill: constants.META_COLOR,
-              left: coords.x,
-              top: coords.y,
-              perPixelTargetFind: true,
-              hasControls: false,
-              hasBorders: false,
+              left: p1Coords.x,
+              top: p1Coords.y,
             });
             canvas.add(p1);
             canvas.state.p1 = p1;
+
           } else if (!canvas.state.p2){
             let p1Coords = canvas.state.p1.getCenterPoint();
             let p2Coords = opt.absolutePointer;
@@ -74,15 +63,8 @@ export function handleMouseDown(opt, canvas) {
 
             let line = new fabric.Path( 
               `M ${p1Coords.x} ${p1Coords.y} Q ${p3Coords.x}, ${p3Coords.y}, ${p2Coords.x}, ${p2Coords.y}`, 
-              {
-                fill: '',
-                stroke: constants.DRAW_COLOR,
-                strokeWidth: constants.LINE_WIDTH,
-                strokeLineCap: "round",
-                perPixelTargetFind: true,
-                hasControls: false,
-                hasBorders: false,
-            });
+              utils.defaultPath
+            );
 
             canvas.add(line); //canvas.insertAt??
             canvas.state.curLine = line;
@@ -90,29 +72,20 @@ export function handleMouseDown(opt, canvas) {
             canvas.sendToBack(canvas.state.bg);
 
             let p2 = new fabric.Circle({
-              originX: 'center',
-              originY: 'center',
-              radius: constants.DOT_RADIUS,
+              ...utils.defaultCircle,
               fill: constants.META_COLOR,
               left: p2Coords.x,
               top: p2Coords.y,
-              perPixelTargetFind: true,
-              hasControls: false,
-              hasBorders: false,
             });
             canvas.add(p2);
             canvas.state.p2 = p2;
 
             let p3 = new fabric.Circle({
-              originX: 'center',
-              originY: 'center',
+              ...utils.defaultCircle,
               radius: constants.DOT_RADIUS * 1.75,
               fill: constants.SELECT_COLOR,
               left: p3Coords.x,
               top: p3Coords.y,
-              perPixelTargetFind: true,
-              hasControls: false,
-              hasBorders: false,
             });
             canvas.add(p3);
             canvas.state.p3 = p3;
@@ -123,12 +96,7 @@ export function handleMouseDown(opt, canvas) {
           ) {
             canvas.state.isBending = true;
           } else {
-            canvas.state.isBending = false;
-            canvas.remove(canvas.state.p1);
-            canvas.remove(canvas.state.p2);
-            canvas.remove(canvas.state.p3);
-            canvas.state.p1 = canvas.state.p2 = canvas.state.p3 = null;
-            canvas.state.curLine = null;
+            utils.resetCanvasState(canvas);
           }
           break;
         default:
@@ -172,15 +140,8 @@ export function handleMouseMove(opt, canvas) {
     // update line
     let newLine = new fabric.Path( 
       `M ${p1Coords.x} ${p1Coords.y} Q ${p3Coords.x}, ${p3Coords.y}, ${p2Coords.x}, ${p2Coords.y}`, 
-      {
-        fill: '',
-        stroke: constants.DRAW_COLOR,
-        strokeWidth: constants.LINE_WIDTH,
-        strokeLineCap: "round",
-        perPixelTargetFind: true,
-        hasControls: false,
-        hasBorders: false,
-    });
+      utils.defaultPath
+    );
     canvas.remove(canvas.state.curLine);
     canvas.add(newLine);
     canvas.state.curLine = newLine;
@@ -195,14 +156,8 @@ export function handleMouseUp(opt, canvas) {
   canvas.state.isDragging = false;
   canvas.state.isDeleting = false;
 
-  // check via FSD
   if (canvas.state.isBending) {
-    canvas.state.isBending = false;
-    canvas.remove(canvas.state.p1);
-    canvas.remove(canvas.state.p2);
-    canvas.remove(canvas.state.p3);
-    canvas.state.p1 = canvas.state.p2 = canvas.state.p3 = null;
-    canvas.state.curLine = null;
+    utils.resetCanvasState(canvas);
   }
 
 }

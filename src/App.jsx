@@ -4,9 +4,9 @@ import Header from './Header.jsx'
 import { fabric } from 'fabric'
 import * as fabricEvents from './fabricEvents.js'
 import {GRID_COLOR, CELL_SIZE, BACKGROUND_COLOR} from './constants.js'
+import * as utils from './utils.js'
 
 fabric.Group.prototype.hasControls = false  // https://github.com/fabricjs/fabric.js/issues/1166
-
 
 
 function App() {
@@ -123,39 +123,7 @@ function App() {
     if (newMode !== null){
       setMode(newMode);
       canvas.state.mode = newMode;
-      canvas.state.isBending = false;
-      canvas.remove(canvas.state.p1);
-      canvas.remove(canvas.state.p2);
-      canvas.remove(canvas.state.p3);
-      canvas.state.p1 = canvas.state.p2 = canvas.state.p3 = null;
-      canvas.state.curLine = null;
-      
-      switch (newMode) {
-        case 'select':
-          canvas.defaultCursor = 'default';
-          canvas.selection = true;
-          canvas.skipTargetFind = false;
-          fabric.Object.prototype.selectable = true;
-          break;
-        case 'pan':
-          canvas.defaultCursor = 'grab';
-          canvas.selection = false;
-          canvas.skipTargetFind = true;
-          // fabric.Object.prototype.selectable = false; // N/A if skipTargetFind
-          break;
-        case 'draw':
-          canvas.defaultCursor = 'crosshair';
-          canvas.selection = false;
-          canvas.skipTargetFind = true;
-          // fabric.Object.prototype.selectable = false;
-          break;
-        case 'delete':
-          canvas.defaultCursor = 'crosshair';
-          canvas.selection = false;
-          canvas.skipTargetFind = false;
-          fabric.Object.prototype.selectable = false;
-          break;
-      }
+      utils.resetCanvasState(canvas);
     }
   };
 
@@ -164,6 +132,7 @@ function App() {
     if (newDrawMode !== null){
       setDrawMode(newDrawMode);
       canvas.state.drawMode = newDrawMode;
+      utils.resetCanvasState(canvas);
     }
   }
 
