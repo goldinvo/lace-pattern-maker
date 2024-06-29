@@ -6,13 +6,21 @@ export const defaultCircle = {
   
   radius: constants.DOT_RADIUS,
   fill: constants.DRAW_COLOR,
+
+  hasControls: false,
+  hasBorders: false,
+  perPixelTargetFind: true,
 }
 
 export const defaultPath = {
   fill: '',
   stroke: constants.DRAW_COLOR,
   strokeWidth: constants.LINE_WIDTH,
-  strokeLineCap: "round",
+  strokeLineCap: 'round',
+
+  hasControls: false,
+  hasBorders: false,
+  perPixelTargetFind: true,
 }
 export function resetMetaPointState(canvas, setMetaExists) {
   canvas.remove(canvas.state.curMetaPoint);

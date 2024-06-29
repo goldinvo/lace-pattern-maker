@@ -6,12 +6,8 @@ import * as fabricEvents from './fabricEvents.js'
 import * as constants from './constants.js'
 import * as utils from './utils.js'
 
-// Change defaults (seems OK to do this way based on maintainer comments)
+// Change defaults
 fabric.Group.prototype.hasControls = false;
-fabric.Object.prototype.hasControls = false;
-fabric.Object.prototype.hasBorders = false;
-fabric.Object.prototype.perPixelTargetFind = true;
-
 
 function App() {
   const canvasRef = useRef(null);
@@ -58,7 +54,7 @@ function App() {
     // Initialize brush
     let brush = new fabric.PencilBrush(canvas);
     brush.color = constants.DRAW_COLOR;
-    brush.width = constants.PENCIL_WIDTH;
+    brush.width = constants.LINE_WIDTH;
     canvas.freeDrawingBrush = brush;
 
     // Fabric events handlers
@@ -77,6 +73,7 @@ function App() {
         setSelectionExists(false);
         fabricEvents.handleSelectionCleared(opt, canvas);
       },
+      'path:created': (opt) => {opt.path.set(utils.defaultPath)}
     });
 
     // Cleanup on unmount
@@ -114,7 +111,7 @@ function App() {
       canvas.getActiveObject().clone(function(cloned) {
         setClipboard(cloned);
         canvas.state.clipboard = cloned;
-      });
+      }, [...Object.keys(utils.defaultCircle), ...Object.keys(utils.defaultPath)]);
     }
   }
 
@@ -123,7 +120,6 @@ function App() {
     if (clipboard && metaExists) {
       // clone again, so you can do multiple copies.
       clipboard.clone(function(clonedObj) {
-        canvas.discardActiveObject();
         clonedObj.set({
           left: clonedObj.left + 10,
           top: clonedObj.top + 10,
@@ -144,7 +140,7 @@ function App() {
         // _clipboard.left += 10;
         canvas.setActiveObject(clonedObj);
         canvas.requestRenderAll();
-      });
+      }, [...Object.keys(utils.defaultCircle), ...Object.keys(utils.defaultPath)]);
     }  
   }
 
