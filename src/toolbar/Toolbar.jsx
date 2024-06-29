@@ -9,7 +9,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import SvgIcon from '@mui/material/SvgIcon';
 import SelectPanel from "./SelectPanel.jsx";
 import DrawPanel from "./DrawPanel.jsx"
-
+import Paper from '@mui/material/Paper';
 
 
 export default function Toolbar(props) {
@@ -51,7 +51,8 @@ export default function Toolbar(props) {
   return (
   <Stack 
     spacing={1}
-    sx={{position: 'fixed', top: 60, right: 30}}
+    sx={{position: 'fixed', top: 90, right: 20, backgroundColor: 'rgba(255, 215, 0, 0.3)', padding: '10px', borderRadius: '10px',}}
+    color="primary"
   >
     <ToggleButtonGroup
       value={props.mode}
