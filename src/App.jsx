@@ -15,6 +15,7 @@ function App() {
 
   const [curPos, setCurPos] = useState({x: 0, y: 0});
   const [mode, setMode] = useState('select');
+  const [drawMode, setDrawMode] = useState('point')
   const [snap, setSnap] = useState(true);
   const [clipboard, setClipboard] = useState(null);
   const [selectionExists, setSelectionExists] = useState(false);
@@ -28,6 +29,8 @@ function App() {
       hoverCursor: 'pointer',
       hasControls: false,
       state: {
+        mode: 'select',
+        drawMode: 'point',
         snap: true,
       },
     });
@@ -40,7 +43,7 @@ function App() {
     };
 
     // Initialize grid https://stackoverflow.com/questions/68604136/fabric-js-canvas-infinite-background-grid-like-miro
-    var infBGrid = fabric.util.createClass(fabric.Object, { 
+    let infBGrid = fabric.util.createClass(fabric.Object, { 
       type: 'infBGrid',
       
       initialize: function () {
@@ -86,6 +89,7 @@ function App() {
     });
   
     let bg = new infBGrid();
+    canvas.state.bg = bg; // just to be able to send to back later
     canvas.add(bg);
     canvas.renderAll();
 
@@ -129,13 +133,13 @@ function App() {
           canvas.defaultCursor = 'grab';
           canvas.selection = false;
           canvas.skipTargetFind = true;
-          fabric.Object.prototype.selectable = true;
+          // fabric.Object.prototype.selectable = false; // N/A if skipTargetFind
           break;
         case 'draw':
           canvas.defaultCursor = 'crosshair';
           canvas.selection = false;
           canvas.skipTargetFind = true;
-          fabric.Object.prototype.selectable = false;
+          // fabric.Object.prototype.selectable = false;
           break;
         case 'delete':
           canvas.defaultCursor = 'crosshair';
@@ -146,6 +150,14 @@ function App() {
       }
     }
   };
+
+  function handleDrawMode(event, newDrawMode) {
+    let canvas = fabRef.current;
+    if (newDrawMode !== null){
+      setDrawMode(newDrawMode);
+      canvas.state.drawMode = newDrawMode;
+    }
+  }
 
   function handleSnap(event) {
     setSnap(event.target.checked);
@@ -203,6 +215,7 @@ function App() {
     curPos, 
     selectionExists,
     mode, handleMode,
+    drawMode, handleDrawMode,
     snap, handleSnap,
     clipboard, handleCopy, handlePaste,
     handleDelete,

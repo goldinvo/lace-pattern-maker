@@ -9,8 +9,10 @@ import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import SelectPanel from "./SelectPanel.jsx";
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+
+import SelectPanel from "./SelectPanel.jsx";
+import DrawPanel from "./DrawPanel.jsx"
 
 
 
@@ -70,6 +72,7 @@ export default function Toolbar(props) {
     </ToggleButtonGroup>
 
     { (props.mode === "select") && <SelectPanel handleDelete={props.handleDelete} selectionExists={props.selectionExists} clipboard={props.clipboard} handleCopy={props.handleCopy} handlePaste={props.handlePaste}/>}
+    { (props.mode === "draw") && <DrawPanel drawMode={props.drawMode} handleDrawMode={props.handleDrawMode}/>}
 
     <FormControlLabel 
       disabled={props.mode !== "draw" && props.mode !== "select"}

@@ -4,7 +4,9 @@ export const CELL_SIZE = 30;
 
 export const DRAW_COLOR = 'black';
 export const SELECT_COLOR = 'red';
+export const META_COLOR = 'blue';
 export const DOT_RADIUS = 5;
+export const LINE_WIDTH = 3;
 
 export const MAX_SCALE = 3;
 export const MIN_SCALE = 0.3;

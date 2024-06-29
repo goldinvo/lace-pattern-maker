@@ -10,6 +10,7 @@ Any state that needs to be shared with React UI components has a corresponding u
 - `(None)` => `existsSelection`  (access selection using getActiveObjects)
 - `clipboard` => `clipboard`
 - `mode` => `mode` 'select' | 'pan' | 'draw' | 'delete'
+- `drawMode`=> `drawMode` 'point' | 'line' | 'freehand'
 - `defaultCursor`*  update synchronously w/ `mode` *library state
 - `skipTargetFind`* sync with mode
 - `selection`*    sync with mode
