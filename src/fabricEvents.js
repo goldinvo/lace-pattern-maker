@@ -96,7 +96,7 @@ export function handleMouseDown(opt, canvas) {
           ) {
             canvas.state.isBending = true;
           } else {
-            utils.resetCanvasState(canvas);
+            utils.resetDrawLineState(canvas);
           }
           break;
         default:
@@ -148,7 +148,7 @@ export function handleMouseMove(opt, canvas) {
   return opt.absolutePointer;
 }
 
-export function handleMouseUp(opt, canvas) {
+export function handleMouseUp(opt, canvas, setMetaExists) {
   // on mouse up we want to recalculate new interaction
   // for all objects, so we call setViewportTransform
   canvas.setViewportTransform(canvas.viewportTransform);
@@ -156,7 +156,7 @@ export function handleMouseUp(opt, canvas) {
   canvas.state.isDeleting = false;
 
   if (canvas.state.isBending) {
-    utils.resetCanvasState(canvas);
+    utils.resetDrawLineState(canvas);
   }
 
   if (canvas.state.mode === 'select') {
@@ -178,10 +178,12 @@ export function handleMouseUp(opt, canvas) {
         canvas.bringToFront(metaPoint);
         canvas.state.curMetaPoint = metaPoint;
       } else {
-        utils.resetCanvasState(canvas);
+        utils.resetMetaPointState(canvas);
+        setMetaExists(false);
       }
     } else if (opt.isClick && !opt.target) {
-      utils.resetCanvasState(canvas);
+      utils.resetMetaPointState(canvas);
+      setMetaExists(false);
     }
   }
 }

@@ -23,6 +23,7 @@ function App() {
   const [snap, setSnap] = useState(true);
   const [clipboard, setClipboard] = useState(null);
   const [selectionExists, setSelectionExists] = useState(false);
+  const [metaExists, setMetaExists] = useState(false);
 
   useEffect(() => {
     // Initialize fabric
@@ -65,7 +66,7 @@ function App() {
       'mouse:wheel': (opt) => fabricEvents.handleScroll(opt, canvas),
       'mouse:down': (opt) => fabricEvents.handleMouseDown(opt, canvas),
       'mouse:move': (opt) => setCurPos(fabricEvents.handleMouseMove(opt, canvas)),
-      'mouse:up': (opt) => fabricEvents.handleMouseUp(opt, canvas),
+      'mouse:up': (opt) => fabricEvents.handleMouseUp(opt, canvas, setMetaExists),
 
       'selection:created': (opt) => {
         setSelectionExists(true);

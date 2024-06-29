@@ -14,22 +14,27 @@ export const defaultPath = {
   strokeWidth: constants.LINE_WIDTH,
   strokeLineCap: "round",
 }
+export function resetMetaPointState(canvas) {
+  canvas.remove(canvas.state.curMetaPoint);
+  canvas.state.curMetaPoint = null;
+}
+
+export function resetDrawLineState(canvas) {
+  canvas.remove(canvas.state.p1);
+  canvas.remove(canvas.state.p2);
+  canvas.remove(canvas.state.p3);
+  canvas.state.p1 = canvas.state.p2 = canvas.state.p3 = null;
+  canvas.state.curLine = null;
+  canvas.state.isBending = false;
+}
 
 export function resetCanvasState(canvas) {
     // Reset selection
     canvas.discardActiveObject().renderAll();
 
-    // Reset line drawing fields
-    canvas.remove(canvas.state.p1);
-    canvas.remove(canvas.state.p2);
-    canvas.remove(canvas.state.p3);
-    canvas.state.p1 = canvas.state.p2 = canvas.state.p3 = null;
-    canvas.state.curLine = null;
-    canvas.state.isBending = false;
-
-    // Other
-    canvas.remove(canvas.state.curMetaPoint);
-    canvas.state.curMetaPoint = null;
+  
+    resetDrawLineState(canvas);
+    resetMetaPointState(canvas);
 
     let mode = canvas.state.mode;
     switch (mode) {
