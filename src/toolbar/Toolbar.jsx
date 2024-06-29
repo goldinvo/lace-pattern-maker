@@ -45,6 +45,13 @@ export default function Toolbar(props) {
     };
 
   }, [props.mode, previousMode, props.selectionExists]);
+
+  const snapToggle = <FormControlLabel 
+    disabled={props.mode !== "draw" && props.mode !== "select"}
+    control={<Switch checked={props.snap} onChange={props.handleSnap} />}
+    label="Snap to Grid"
+  />;
+
   return (
   <Stack 
     spacing={1}
@@ -60,25 +67,33 @@ export default function Toolbar(props) {
       <ToggleButton value="select" aria-label="select">
         <AdjustOutlinedIcon />
       </ToggleButton>
-      <ToggleButton value="pan" aria-label="pan">
-        <PanToolOutlinedIcon />
-      </ToggleButton>
       <ToggleButton value="draw" aria-label="draw">
         <ModeOutlinedIcon />
+      </ToggleButton>
+      <ToggleButton value="pan" aria-label="pan">
+        <PanToolOutlinedIcon />
       </ToggleButton>
       <ToggleButton value="delete" aria-label="delete">
         <DeleteOutlinedIcon />
       </ToggleButton>
     </ToggleButtonGroup>
 
-    { (props.mode === "select") && <SelectPanel handleDelete={props.handleDelete} selectionExists={props.selectionExists} clipboard={props.clipboard} handleCopy={props.handleCopy} handlePaste={props.handlePaste}/>}
-    { (props.mode === "draw") && <DrawPanel drawMode={props.drawMode} handleDrawMode={props.handleDrawMode}/>}
+    { (props.mode === "select") && <SelectPanel 
+                                    handleDelete={props.handleDelete} 
+                                    selectionExists={props.selectionExists} 
+                                    clipboard={props.clipboard} 
+                                    handleCopy={props.handleCopy} 
+                                    handlePaste={props.handlePaste}
+                                    snapToggle={snapToggle}
+                                    />}
 
-    <FormControlLabel 
-      disabled={props.mode !== "draw" && props.mode !== "select"}
-      control={<Switch checked={props.snap} onChange={props.handleSnap} />}
-      label="Snap to Grid"
-    />
+    { (props.mode === "draw") && <DrawPanel 
+                                  drawMode={props.drawMode} 
+                                  handleDrawMode={props.handleDrawMode}
+                                  snapToggle={snapToggle}
+                                  />}
+
+    
 
     <Chip label={"x:" + Math.round(props.curPos.x) + " y:" + Math.round(props.curPos.y)}/>
   </Stack>

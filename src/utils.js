@@ -27,6 +27,10 @@ export function resetCanvasState(canvas) {
     canvas.state.curLine = null;
     canvas.state.isBending = false;
 
+    // Other
+    canvas.remove(canvas.state.curMetaPoint);
+    canvas.state.curMetaPoint = null;
+
     let mode = canvas.state.mode;
     switch (mode) {
         case 'select':
@@ -36,19 +40,19 @@ export function resetCanvasState(canvas) {
           fabric.Object.prototype.selectable = true;
           canvas.isDrawingMode = false;
           break;
+        case 'draw':
+            canvas.defaultCursor = 'crosshair';
+            canvas.selection = false;
+            canvas.skipTargetFind = true;
+            // fabric.Object.prototype.selectable = false;
+            canvas.isDrawingMode = canvas.state.drawMode==='freehand';
+            break;
         case 'pan':
           canvas.defaultCursor = 'grab';
           canvas.selection = false;
           canvas.skipTargetFind = true;
           // fabric.Object.prototype.selectable = false; // N/A if skipTargetFind
           canvas.isDrawingMode = false;
-          break;
-        case 'draw':
-          canvas.defaultCursor = 'crosshair';
-          canvas.selection = false;
-          canvas.skipTargetFind = true;
-          // fabric.Object.prototype.selectable = false;
-          canvas.isDrawingMode = canvas.state.drawMode==='freehand';
           break;
         case 'delete':
           canvas.defaultCursor = 'crosshair';

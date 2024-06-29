@@ -110,7 +110,6 @@ export function handleMouseDown(opt, canvas) {
         // TODO: what happens when you have groups?
       }
     case 'select':
-      // canvas.selection = true; // should already be true anyway
       break;
   }
 }
@@ -160,6 +159,31 @@ export function handleMouseUp(opt, canvas) {
     utils.resetCanvasState(canvas);
   }
 
+  if (canvas.state.mode === 'select') {
+    if (!canvas.state.curMetaPoint) {
+      if (opt.isClick && !opt.target) {
+        // draw meta point
+        let absCoords = opt.absolutePointer;
+        if (canvas.state.snap) absCoords = snapToGrid(absCoords);
+        let metaPoint = new fabric.Circle({
+          ...utils.defaultCircle,
+          left: absCoords.x,
+          top: absCoords.y,
+          radius: constants.DOT_RADIUS * .75,
+          fill: constants.META_COLOR,
+          selectable: false,
+          evented: false,
+        });
+        canvas.add(metaPoint);
+        canvas.bringToFront(metaPoint);
+        canvas.state.curMetaPoint = metaPoint;
+      } else {
+        utils.resetCanvasState(canvas);
+      }
+    } else if (opt.isClick && !opt.target) {
+      utils.resetCanvasState(canvas);
+    }
+  }
 }
 
 export function handleSelectionCreated(opt, canvas) {

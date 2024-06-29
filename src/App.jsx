@@ -33,6 +33,7 @@ function App() {
       hoverCursor: 'pointer',
       hasControls: false,
       selectionFullyContained: true, // watch for better selection feature: https://github.com/fabricjs/fabric.js/issues/3773
+      preserveObjectStacking: true,
       state: {
         mode: 'select',
         drawMode: 'point',
