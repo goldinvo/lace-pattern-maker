@@ -177,13 +177,12 @@ export function handleMouseUp(opt, canvas, setMetaExists) {
         canvas.add(metaPoint);
         canvas.bringToFront(metaPoint);
         canvas.state.curMetaPoint = metaPoint;
+        setMetaExists(true);
       } else {
-        utils.resetMetaPointState(canvas);
-        setMetaExists(false);
+        utils.resetMetaPointState(canvas, setMetaExists);
       }
     } else if (opt.isClick && !opt.target) {
-      utils.resetMetaPointState(canvas);
-      setMetaExists(false);
+      utils.resetMetaPointState(canvas, setMetaExists);
     }
   }
 }

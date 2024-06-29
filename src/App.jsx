@@ -90,16 +90,16 @@ function App() {
     if (newMode !== null){
       setMode(newMode);
       canvas.state.mode = newMode;
-      utils.resetCanvasState(canvas);
+      utils.resetCanvasState(canvas, setMetaExists);
     }
   };
 
   function handleDrawMode(event, newDrawMode) {
     let canvas = fabRef.current;
-    if (newDrawMode !== null){
+    if (mode==='draw' && newDrawMode !== null){
       setDrawMode(newDrawMode);
       canvas.state.drawMode = newDrawMode;
-      utils.resetCanvasState(canvas);
+      utils.resetCanvasState(canvas, setMetaExists);
     }
   }
 
@@ -120,7 +120,7 @@ function App() {
 
   function handlePaste() {
     let canvas = fabRef.current;
-    if (clipboard) {
+    if (clipboard && metaExists) {
       // clone again, so you can do multiple copies.
       clipboard.clone(function(clonedObj) {
         canvas.discardActiveObject();
@@ -161,7 +161,7 @@ function App() {
     mode, handleMode,
     drawMode, handleDrawMode,
     snap, handleSnap,
-    clipboard, handleCopy, handlePaste,
+    clipboard, handleCopy, handlePaste, metaExists,
     handleDelete,
   }
 

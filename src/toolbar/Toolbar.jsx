@@ -82,6 +82,7 @@ export default function Toolbar(props) {
                                     handleDelete={props.handleDelete} 
                                     selectionExists={props.selectionExists} 
                                     clipboard={props.clipboard} 
+                                    metaExists = {props.metaExists}
                                     handleCopy={props.handleCopy} 
                                     handlePaste={props.handlePaste}
                                     snapToggle={snapToggle}

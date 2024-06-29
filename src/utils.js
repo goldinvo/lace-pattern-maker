@@ -14,9 +14,10 @@ export const defaultPath = {
   strokeWidth: constants.LINE_WIDTH,
   strokeLineCap: "round",
 }
-export function resetMetaPointState(canvas) {
+export function resetMetaPointState(canvas, setMetaExists) {
   canvas.remove(canvas.state.curMetaPoint);
   canvas.state.curMetaPoint = null;
+  setMetaExists(false);
 }
 
 export function resetDrawLineState(canvas) {
@@ -28,13 +29,17 @@ export function resetDrawLineState(canvas) {
   canvas.state.isBending = false;
 }
 
-export function resetCanvasState(canvas) {
+// Remember to set React state as well, if it applies
+// Call on all mode changes, including draw mode!!
+// curPos not updating is expected behavior
+// what about existSelection?
+export function resetCanvasState(canvas, setMetaExists) {
     // Reset selection
     canvas.discardActiveObject().renderAll();
 
   
     resetDrawLineState(canvas);
-    resetMetaPointState(canvas);
+    resetMetaPointState(canvas, setMetaExists);
 
     let mode = canvas.state.mode;
     switch (mode) {

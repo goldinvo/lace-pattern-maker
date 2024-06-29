@@ -8,9 +8,9 @@ Any state that needs to be shared with React UI components has a corresponding u
 [Fabric member] (=> React member):
 - `(None)` => `curPos`
 - `(None)` => `existsSelection`  (access selection using getActiveObjects)
-- `clipboard` => `clipboard`
-- `mode` => `mode` 'select' | 'pan' | 'draw' | 'delete'
-- `drawMode`=> `drawMode` 'point' | 'line' | 'freehand'
+- `clipboard` == `clipboard`
+- `mode` <= `mode` 'select' | 'pan' | 'draw' | 'delete'
+- `drawMode`<= `drawMode` 'point' | 'line' | 'freehand'
 - `defaultCursor`*  update synchronously w/ `mode` *library state
 - `skipTargetFind`* sync with mode
 - `selection`*    sync with mode
@@ -19,7 +19,7 @@ Any state that needs to be shared with React UI components has a corresponding u
 - `isBending`
 - `lastPosX`
 - `lastPosY`
-- `curMetaPoint`
+- `curMetaPoint` => `metaExists`
 - `snap` => `snap`
 - `metaPoint`
 - `p1`, `p2`, `p3`, `isBending`, `curLine`
