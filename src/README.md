@@ -19,3 +19,5 @@ Any state that needs to be shared with React UI components has a corresponding u
 - `lastPosX`
 - `lastPosY`
 - `snap` => `snap`
+- p1, p2, p3, isBending, curLine
+- isDrawingMode

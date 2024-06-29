@@ -169,7 +169,7 @@ export function handleSelectionCreated(opt, canvas) {
 export function handleSelectionUpdated(opt, canvas) {
   function setColor(color) {
     return (object) => {
-      let target = object.fill === '' ? 'stroke' : 'fill'; // unfilled implies object colored by stroke
+      let target = object.fill ? 'fill' : 'stroke';
       object.set(target, color)
     }
   }

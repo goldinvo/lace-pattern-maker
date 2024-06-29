@@ -3,10 +3,14 @@ import Toolbar from './toolbar/Toolbar.jsx'
 import Header from './Header.jsx'
 import { fabric } from 'fabric'
 import * as fabricEvents from './fabricEvents.js'
-import {GRID_COLOR, CELL_SIZE, BACKGROUND_COLOR} from './constants.js'
+import * as constants from './constants.js'
 import * as utils from './utils.js'
 
-fabric.Group.prototype.hasControls = false  // https://github.com/fabricjs/fabric.js/issues/1166
+// Change defaults (seems OK to do this way based on maintainer comments)
+fabric.Group.prototype.hasControls = false;
+fabric.Object.prototype.hasControls = false;
+fabric.Object.prototype.hasBorders = false;
+fabric.Object.prototype.perPixelTargetFind = true;
 
 
 function App() {
@@ -15,7 +19,7 @@ function App() {
 
   const [curPos, setCurPos] = useState({x: 0, y: 0});
   const [mode, setMode] = useState('select');
-  const [drawMode, setDrawMode] = useState('point')
+  const [drawMode, setDrawMode] = useState('point');
   const [snap, setSnap] = useState(true);
   const [clipboard, setClipboard] = useState(null);
   const [selectionExists, setSelectionExists] = useState(false);
@@ -23,12 +27,12 @@ function App() {
   useEffect(() => {
     // Initialize fabric
     fabRef.current = new fabric.Canvas(canvasRef.current, {
-      backgroundColor: BACKGROUND_COLOR,
+      backgroundColor: constants.BACKGROUND_COLOR,
       width: window.outerWidth,
       height: window.outerHeight,
       hoverCursor: 'pointer',
       hasControls: false,
-      selectionFullyContained: true, // watch this issue: https://github.com/fabricjs/fabric.js/issues/3773
+      selectionFullyContained: true, // watch for better selection feature: https://github.com/fabricjs/fabric.js/issues/3773
       state: {
         mode: 'select',
         drawMode: 'point',
@@ -43,56 +47,17 @@ function App() {
       canvas.setHeight(window.outerHeight);
     };
 
-    // Initialize grid https://stackoverflow.com/questions/68604136/fabric-js-canvas-infinite-background-grid-like-miro
-    let infBGrid = fabric.util.createClass(fabric.Object, { 
-      type: 'infBGrid',
-      
-      initialize: function () {
-
-      },
-      
-      render: function (ctx) {
-          let canvas = fabRef.current;
-          let zoom = canvas.getZoom();
-          let offX = canvas.viewportTransform[4];
-          let offY = canvas.viewportTransform[5];
-  
-          ctx.save();
-          ctx.strokeStyle = GRID_COLOR;
-          ctx.lineWidth = 1;
-  
-          let gridSize = CELL_SIZE * zoom;
-  
-          const numCellsX = Math.ceil(canvas.width / gridSize);
-          const numCellsY = Math.ceil(canvas.height / gridSize);
-  
-          let gridOffsetX = offX % gridSize;
-          let gridOffsetY = offY % gridSize;
-          ctx.beginPath();
-          // draw vertical lines
-          for (let i = 0; i <= numCellsX; i++) {
-            let x = gridOffsetX + i * gridSize;
-            ctx.moveTo((x - offX) / zoom, (0 - offY) / zoom);
-            ctx.lineTo((x - offX) / zoom, (canvas.height - offY) / zoom);
-          }
-        
-          // draw horizontal lines
-          for (let i = 0; i <= numCellsY; i++) {
-            let y = gridOffsetY + i * gridSize;
-            ctx.moveTo((0 - offX) / zoom, (y - offY) / zoom);
-            ctx.lineTo((canvas.width - offX) / zoom, (y - offY) / zoom);
-          }
-        
-          ctx.stroke();
-          ctx.closePath();
-          ctx.restore();
-      }
-    });
-  
-    let bg = new infBGrid();
+    // Initialize background grid
+    let bg = new utils.infBGrid();
     canvas.state.bg = bg; // just to be able to send to back later
     canvas.add(bg);
     canvas.renderAll();
+
+    // Initialize brush
+    let brush = new fabric.PencilBrush(canvas);
+    brush.color = constants.DRAW_COLOR;
+    brush.width = constants.PENCIL_WIDTH;
+    canvas.freeDrawingBrush = brush;
 
     // Fabric events handlers
     canvas.on({

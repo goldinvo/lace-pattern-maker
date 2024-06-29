@@ -6,10 +6,6 @@ export const defaultCircle = {
   
   radius: constants.DOT_RADIUS,
   fill: constants.DRAW_COLOR,
-  
-  perPixelTargetFind: true,
-  hasControls: false,
-  hasBorders: false,
 }
 
 export const defaultPath = {
@@ -17,9 +13,6 @@ export const defaultPath = {
   stroke: constants.DRAW_COLOR,
   strokeWidth: constants.LINE_WIDTH,
   strokeLineCap: "round",
-  perPixelTargetFind: true,
-  hasControls: false,
-  hasBorders: false,
 }
 
 export function resetCanvasState(canvas) {
@@ -41,24 +34,73 @@ export function resetCanvasState(canvas) {
           canvas.selection = true;
           canvas.skipTargetFind = false;
           fabric.Object.prototype.selectable = true;
+          canvas.isDrawingMode = false;
           break;
         case 'pan':
           canvas.defaultCursor = 'grab';
           canvas.selection = false;
           canvas.skipTargetFind = true;
           // fabric.Object.prototype.selectable = false; // N/A if skipTargetFind
+          canvas.isDrawingMode = false;
           break;
         case 'draw':
           canvas.defaultCursor = 'crosshair';
           canvas.selection = false;
           canvas.skipTargetFind = true;
           // fabric.Object.prototype.selectable = false;
+          canvas.isDrawingMode = canvas.state.drawMode==='freehand';
           break;
         case 'delete':
           canvas.defaultCursor = 'crosshair';
           canvas.selection = false;
           canvas.skipTargetFind = false;
           fabric.Object.prototype.selectable = false;
+          canvas.isDrawingMode = false;
           break;
       }
 }
+
+// Grid https://stackoverflow.com/questions/68604136/fabric-js-canvas-infinite-background-grid-like-miro
+export const infBGrid = fabric.util.createClass(fabric.Object, { 
+  type: 'infBGrid',
+  
+  initialize: function () {
+  },
+  
+  render: function (ctx) {
+      let canvas = this.canvas;
+      let zoom = canvas.getZoom();
+      let offX = canvas.viewportTransform[4];
+      let offY = canvas.viewportTransform[5];
+
+      ctx.save();
+      ctx.strokeStyle = constants.GRID_COLOR;
+      ctx.lineWidth = 1;
+
+      let gridSize = constants.CELL_SIZE * zoom;
+
+      const numCellsX = Math.ceil(canvas.width / gridSize);
+      const numCellsY = Math.ceil(canvas.height / gridSize);
+
+      let gridOffsetX = offX % gridSize;
+      let gridOffsetY = offY % gridSize;
+      ctx.beginPath();
+      // draw vertical lines
+      for (let i = 0; i <= numCellsX; i++) {
+        let x = gridOffsetX + i * gridSize;
+        ctx.moveTo((x - offX) / zoom, (0 - offY) / zoom);
+        ctx.lineTo((x - offX) / zoom, (canvas.height - offY) / zoom);
+      }
+    
+      // draw horizontal lines
+      for (let i = 0; i <= numCellsY; i++) {
+        let y = gridOffsetY + i * gridSize;
+        ctx.moveTo((0 - offX) / zoom, (y - offY) / zoom);
+        ctx.lineTo((canvas.width - offX) / zoom, (y - offY) / zoom);
+      }
+    
+      ctx.stroke();
+      ctx.closePath();
+      ctx.restore();
+  }
+});
