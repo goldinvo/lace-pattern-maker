@@ -118,11 +118,12 @@ function App() {
   function handlePaste() {
     let canvas = fabRef.current;
     if (clipboard && metaExists) {
+      let metaPoint = canvas.state.curMetaPoint;
       // clone again, so you can do multiple copies.
       clipboard.clone(function(clonedObj) {
         clonedObj.set({
-          left: clonedObj.left + 10,
-          top: clonedObj.top + 10,
+          left: metaPoint.aCoords.tl.x,
+          top: metaPoint.aCoords.tl.y,
           evented: true,
         });
         if (clonedObj.type === 'activeSelection') {
@@ -136,8 +137,6 @@ function App() {
         } else {
           canvas.add(clonedObj);
         }
-        // _clipboard.top += 10;
-        // _clipboard.left += 10;
         canvas.setActiveObject(clonedObj);
         canvas.requestRenderAll();
       }, [...Object.keys(utils.defaultCircle), ...Object.keys(utils.defaultPath)]);
