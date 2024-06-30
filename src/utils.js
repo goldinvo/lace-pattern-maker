@@ -1,4 +1,5 @@
 import * as constants from './constants.js'
+import {fabric} from 'fabric'
 
 export const defaultCircle = {
   originX: 'center',
@@ -22,6 +23,15 @@ export const defaultPath = {
   hasBorders: false,
   perPixelTargetFind: true,
 }
+
+export function userToAbsolute(coords) {
+  return {x: coords.x * constants.CELL_SIZE, y: coords.y * constants.CELL_SIZE};
+}
+
+export function absoluteToUser(coords) {
+  return {x: coords.x / constants.CELL_SIZE, y: coords.y / constants.CELL_SIZE};
+}
+
 export function resetMetaPointState(canvas, setMetaExists) {
   canvas.remove(canvas.state.curMetaPoint);
   canvas.state.curMetaPoint = null;

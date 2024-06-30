@@ -150,6 +150,36 @@ function App() {
     canvas.remove(...activeObject);
   }
 
+  function handlePrint() {
+    let canvas = fabRef.current;
+    canvas.remove(canvas.state.bg);
+    canvas.backgroundColor = 'white';
+    let tempCanvas = new fabric.StaticCanvas().loadFromJSON(canvas.toJSON());
+    canvas.backgroundColor = constants.BACKGROUND_COLOR;
+    canvas.add(canvas.state.bg);
+    canvas.sendToBack(canvas.state.bg);
+    
+    tempCanvas.setHeight(100);
+    tempCanvas.setWidth(100);
+    tempCanvas.absolutePan({x: 0, y: 0});
+    let dataURL = tempCanvas.toDataURL({
+      multiplier: 2,
+    }); //attempt to save base64 string to server using this var  
+    
+    let title = "title";
+    let windowContent = `
+    <!DOCTYPE html>
+    <html>
+    <head><title>${title}</title></head>
+    <body><img src="${dataURL}" onload=window.print()></body>
+    </html>
+    `;
+    let printWin = window.open();
+    printWin.document.open();
+    printWin.document.write(windowContent);
+    printWin.document.close();
+  }
+
   let propagateState = {
     curPos, 
     selectionExists,
@@ -162,7 +192,7 @@ function App() {
 
   return (
     <div>
-      <Header/>
+      <Header {...{handlePrint, }}/>
       <canvas ref={canvasRef}> 
         Could not load canvas. Please update browser or enable JavaScript.
       </canvas>

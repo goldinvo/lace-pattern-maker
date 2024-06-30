@@ -10,10 +10,12 @@ import SvgIcon from '@mui/material/SvgIcon';
 import SelectPanel from "./SelectPanel.jsx";
 import DrawPanel from "./DrawPanel.jsx"
 import Paper from '@mui/material/Paper';
+import { absoluteToUser } from '../utils.js';
 
 
 export default function Toolbar(props) {
   const [previousMode, setPreviousMode] = useState(null);
+  let curPosUser = absoluteToUser(props.curPos);
   
   function handleKeyDown(e) {
     if (e.key === "Alt") {
@@ -92,7 +94,7 @@ export default function Toolbar(props) {
 
     
 
-    <Chip label={"x:" + Math.round(props.curPos.x) + " y:" + Math.round(props.curPos.y)}/>
+    <Chip label={'x: ' + curPosUser.x.toFixed(1) + '\ty: ' + curPosUser.y.toFixed(1)}/>
   </Stack>
   )
 }
