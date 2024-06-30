@@ -152,7 +152,6 @@ function App() {
 
   // make sure to use absolute coordinates/scaling
   function handlePrint(x, y, width, height, scale) {
-    console.log(x, y, width, height, scale)
     let canvas = fabRef.current;
     canvas.remove(canvas.state.bg);
     canvas.backgroundColor = 'white';
@@ -164,6 +163,7 @@ function App() {
     tempCanvas.setHeight(height);
     tempCanvas.setWidth(width);
     tempCanvas.absolutePan({x, y});
+
     let dataURL = tempCanvas.toDataURL({
       multiplier: scale,
     });
