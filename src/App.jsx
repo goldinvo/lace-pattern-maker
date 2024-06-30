@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
 import Toolbar from './toolbar/Toolbar.jsx'
-import Header from './Header.jsx'
+import Header from './header/Header.jsx'
 import { fabric } from 'fabric'
 import * as fabricEvents from './fabricEvents.js'
 import * as constants from './constants.js'
@@ -150,7 +150,8 @@ function App() {
     canvas.remove(...activeObject);
   }
 
-  function handlePrint() {
+  // make sure to use absolute coordinates/scaling
+  function handlePrint(x, y, width, height, scale) {
     let canvas = fabRef.current;
     canvas.remove(canvas.state.bg);
     canvas.backgroundColor = 'white';
@@ -159,12 +160,12 @@ function App() {
     canvas.add(canvas.state.bg);
     canvas.sendToBack(canvas.state.bg);
     
-    tempCanvas.setHeight(100);
-    tempCanvas.setWidth(100);
-    tempCanvas.absolutePan({x: 0, y: 0});
+    tempCanvas.setHeight(height);
+    tempCanvas.setWidth(width);
+    tempCanvas.absolutePan({x, y});
     let dataURL = tempCanvas.toDataURL({
-      multiplier: 2,
-    }); //attempt to save base64 string to server using this var  
+      multiplier: scale,
+    });
     
     let title = "title";
     let windowContent = `

@@ -9,6 +9,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import PrintDialogue from './PrintDialog.jsx'
 
 
 function Header({handlePrint}) {
@@ -17,10 +18,10 @@ function Header({handlePrint}) {
   const handleClickOpen = () => {
     setOpen(true);
   };
-  
+
   const handleClose = () => {
     setOpen(false);
-  };
+  }
 
   return (
     <AppBar>
@@ -47,42 +48,7 @@ function Header({handlePrint}) {
           onClick={handleClickOpen}
         > Print
         </Button> 
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        PaperProps={{
-          component: 'form',
-          onSubmit: (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries(formData.entries());
-            console.log(formJson);
-            handleClose();
-          },
-        }}
-      >
-        <DialogTitle>Print</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            To subscribe to this website, please enter your email address here. We
-            will send updates occasionally.
-          </DialogContentText>
-          <TextField
-            required
-            margin="dense"
-            id="name"
-            name="email"
-            label="x"
-            type="email"
-            // fullWidth
-            // variant="standard"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button type="submit">Subscribe</Button>
-        </DialogActions>
-      </Dialog>
+        <PrintDialogue open={open} handleClose={handleClose} handlePrint={handlePrint}/>
 
 
 

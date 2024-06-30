@@ -24,12 +24,21 @@ export const defaultPath = {
   perPixelTargetFind: true,
 }
 
-export function userToAbsolute(coords) {
-  return {x: coords.x * constants.CELL_SIZE, y: coords.y * constants.CELL_SIZE};
+// Accepts either a point {x: ..., y: ...} or value
+export function userToAbsolute(userCoords) {
+  if (typeof userCoords == 'object') {
+    return {x: userCoords.x * constants.CELL_SIZE, y: userCoords.y * constants.CELL_SIZE};
+  } else {
+    return userCoords * constants.CELL_SIZE;
+  }
 }
 
-export function absoluteToUser(coords) {
-  return {x: coords.x / constants.CELL_SIZE, y: coords.y / constants.CELL_SIZE};
+export function absoluteToUser(userCoords) {
+  if (typeof userCoords == 'object') {
+    return {x: userCoords.x / constants.CELL_SIZE, y: userCoords.y / constants.CELL_SIZE};
+  } else {
+    return userCoords / constants.CELL_SIZE;
+  }
 }
 
 export function resetMetaPointState(canvas, setMetaExists) {
