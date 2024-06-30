@@ -20,6 +20,7 @@ function App() {
   const [clipboard, setClipboard] = useState(null);
   const [selectionExists, setSelectionExists] = useState(false);
   const [metaExists, setMetaExists] = useState(false);
+  const [exportJSON, setExportJSON] = useState('');
 
   useEffect(() => {
     // Initialize fabric
@@ -163,10 +164,10 @@ function App() {
     tempCanvas.setHeight(height);
     tempCanvas.setWidth(width);
     tempCanvas.absolutePan({x, y});
-
     let dataURL = tempCanvas.toDataURL({
       multiplier: scale,
     });
+    tempCanvas.dispose();
     
     let title = "title";
     let windowContent = `
@@ -182,7 +183,39 @@ function App() {
     printWin.document.close();
   }
 
-  let propagateState = {
+  // TODO: probably not catching all the properties that I want
+  // Also kinda gross what i'm doing with background should probably
+  // just fix the class
+  function handleExport() {
+    let canvas = fabRef.current;
+    canvas.remove(canvas.state.bg);
+    setExportJSON(JSON.stringify(fabRef.current.toJSON(), null, 2));
+    canvas.add(canvas.state.bg);
+    canvas.sendToBack(canvas.state.bg);
+  }
+
+  function handleImport(importedJson) {
+    let parsedJson;
+    try {
+      parsedJson = JSON.parse(importedJson);
+    } catch (error) {
+      alert('Invalid JSON format. Please correct and try again.');
+    }
+    let canvas = fabRef.current;
+    let state = canvas.state;
+    fabRef.current.loadFromJSON(parsedJson);
+    canvas.state = state;
+    canvas.add(canvas.state.bg);
+    canvas.sendToBack(canvas.state.bg);
+  }
+
+
+  let headerPropagate = {
+    handlePrint,
+    exportJSON, setExportJSON, handleImport, handleExport
+  }
+
+  let toolbarPropagate = {
     curPos, 
     selectionExists,
     mode, handleMode,
@@ -194,11 +227,11 @@ function App() {
 
   return (
     <div>
-      <Header {...{handlePrint, }}/>
+      <Header {...headerPropagate}/>
       <canvas ref={canvasRef}> 
         Could not load canvas. Please update browser or enable JavaScript.
       </canvas>
-      <Toolbar {...propagateState}/>
+      <Toolbar {...toolbarPropagate}/>
     </div>
   );
 };

@@ -3,25 +3,13 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import PrintDialogue from './PrintDialog.jsx'
+import PrintDialogue from './PrintDialog.jsx';
+import ImportExport from './ExportImport.jsx';
 
 
-function Header({handlePrint}) {
-  const [open, setOpen] = useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  }
+function Header(props) {
+  const [printOpen, setPrintOpen] = useState(false);
+  const [importExportOpen, setImportExportOpen] = useState(false);
 
   return (
     <AppBar>
@@ -43,15 +31,27 @@ function Header({handlePrint}) {
         >
           goldinvo.com
         </Typography>
+        
         <Button
           sx={{ my: 2, color: 'black', display: 'block' }}
-          onClick={handleClickOpen}
+          onClick={() => setImportExportOpen(true)}
+        > Export/Import
+        </Button> 
+        <ImportExport 
+          open={importExportOpen} 
+          handleClose={()=>{setImportExportOpen(false); props.setExportJSON('')}} 
+          exportJSON={props.exportJSON}
+          setExportJSON={props.setExportJSON}
+          handleImport={props.handleImport}
+          handleExport={props.handleExport}
+        />
+ 
+        <Button
+          sx={{ my: 2, color: 'black', display: 'block' }}
+          onClick={() => setPrintOpen(!printOpen)}
         > Print
         </Button> 
-        <PrintDialogue open={open} handleClose={handleClose} handlePrint={handlePrint}/>
-
-
-
+        <PrintDialogue open={printOpen} handleClose={()=>setPrintOpen(false)} handlePrint={props.handlePrint}/>
 
         <Button
           sx={{ my: 2, color: 'black', display: 'block' }}
