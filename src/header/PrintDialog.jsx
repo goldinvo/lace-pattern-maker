@@ -14,18 +14,18 @@ import { userToAbsolute } from '../utils';
 
 function PrintDialog({ open, handleClose, handlePrint }) {
   const [formValues, setFormValues] = React.useState({
-    x: '',
-    y: '',
-    width: '',
-    height: '',
+    tlX: '',
+    tlY: '',
+    brX: '',
+    brY: '',
     scale: '',
   });
 
   const [errors, setErrors] = React.useState({
-    x: false,
-    y: false,
-    width: false,
-    height: false,
+    tlX: false,
+    tlY: false,
+    brX: false,
+    brY: false,
     scale: false,
   });
 
@@ -40,10 +40,10 @@ function PrintDialog({ open, handleClose, handlePrint }) {
 
   const validateForm = () => {
     const newErrors = {
-      x: isNaN(formValues.x),
-      y: isNaN(formValues.y),
-      width: isNaN(formValues.width),
-      height: isNaN(formValues.height),
+      x: isNaN(formValues.tlX),
+      y: isNaN(formValues.tlY),
+      width: isNaN(formValues.brX),
+      height: isNaN(formValues.brY),
       scale: isNaN(formValues.scale),
     };
     setErrors(newErrors);
@@ -53,14 +53,12 @@ function PrintDialog({ open, handleClose, handlePrint }) {
   const handleSubmit = (event) => {
     event.preventDefault();
     if (validateForm()) {
-        
-      handlePrint(
-        userToAbsolute(formValues.x),
-        userToAbsolute(formValues.y),
-        userToAbsolute(formValues.width),
-        userToAbsolute(formValues.height),
-        formValues.scale,
-      )
+      let aTlX = userToAbsolute(formValues.tlX);
+      let aTlY = userToAbsolute(formValues.tlY);
+      let aBrX = userToAbsolute(formValues.brX);
+      let aBrY = userToAbsolute(formValues.brY);
+
+      handlePrint(aTlX, aTlY, aBrX-aTlX, aBrY-aTlY, formValues.scale);
       handleClose();
     }
   };
@@ -83,50 +81,50 @@ function PrintDialog({ open, handleClose, handlePrint }) {
         <TextField
           required
           margin="dense"
-          id="x"
-          name="x"
-          label="X Coordinate"
+          id="tlX"
+          name="tlX"
+          label="X (Top-Left)"
           type="text"
-          value={formValues.x}
+          value={formValues.tlX}
           onChange={handleInputChange}
-          error={errors.x}
-          helperText={errors.x ? 'Please enter a valid number' : ''}
+          error={errors.tlX}
+          helperText={errors.tlX ? 'Please enter a valid number' : ''}
         />
         <TextField
           required
           margin="dense"
-          id="y"
-          name="y"
-          label="Y Coordinate"
+          id="tlY"
+          name="tlY"
+          label="Y (Top-Left)"
           type="text"
-          value={formValues.y}
+          value={formValues.tlY}
           onChange={handleInputChange}
-          error={errors.y}
-          helperText={errors.y ? 'Please enter a valid number' : ''}
+          error={errors.tlY}
+          helperText={errors.tlY ? 'Please enter a valid number' : ''}
         />
         <TextField
           required
           margin="dense"
-          id="width"
-          name="width"
-          label="Width"
+          id="brX"
+          name="brX"
+          label="X (Bottom-Right)"
           type="text"
-          value={formValues.width}
+          value={formValues.brX}
           onChange={handleInputChange}
-          error={errors.width}
-          helperText={errors.width ? 'Please enter a valid number' : ''}
+          error={errors.brX}
+          helperText={errors.brX ? 'Please enter a valid number' : ''}
         />
         <TextField
           required
           margin="dense"
-          id="height"
-          name="height"
-          label="Height"
+          id="brY"
+          name="brY"
+          label="Y (Bottom-Right)"
           type="text"
-          value={formValues.height}
+          value={formValues.brY}
           onChange={handleInputChange}
-          error={errors.height}
-          helperText={errors.height ? 'Please enter a valid number' : ''}
+          error={errors.brY}
+          helperText={errors.brY ? 'Please enter a valid number' : ''}
         />
         <TextField
           required
