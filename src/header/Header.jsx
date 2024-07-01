@@ -26,7 +26,7 @@ function Header(props) {
   const [aboutOpen, setAboutOpen] = useState(false);
 
   return (
-    <AppBar position="sticky" sx={{ bgcolor: 'primary.main', boxShadow: 1, px: { xs: 2, sm: 3 } }}>
+    <AppBar position="sticky" sx={{ bgcolor: 'secondary.main', boxShadow: 1, px: { xs: 2, sm: 3 } }}>
       <Toolbar
         sx={{
           justifyContent: 'space-between',

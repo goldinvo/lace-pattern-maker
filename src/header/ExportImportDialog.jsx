@@ -92,7 +92,7 @@ function ExportImportDialog({ open, handleClose, exportJSON, setExportJSON, hand
           <Box>
             <Button
               onClick={handleExport}
-              variant="contained"
+              variant="outlined"
               color="primary"
               fullWidth
               sx={{ 
