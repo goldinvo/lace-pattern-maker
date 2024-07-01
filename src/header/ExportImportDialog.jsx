@@ -12,7 +12,7 @@ import {
   Typography
 } from '@mui/material';
 
-function ExportImport({ open, handleClose, exportJSON, setExportJSON, handleImport, handleExport }) {
+function ExportImportDialog({ open, handleClose, exportJSON, setExportJSON, handleImport, handleExport }) {
   const [mode, setMode] = useState('export');
   const [importedJson, setImportedJson] = useState('');
   const [copied, setCopied] = useState(false);
@@ -151,4 +151,4 @@ function ExportImport({ open, handleClose, exportJSON, setExportJSON, handleImpo
   );
 }
 
-export default ExportImport;
+export default ExportImportDialog;
