@@ -53,7 +53,7 @@ export default function Toolbar(props) {
   return (
   <Stack 
     spacing={1}
-    sx={{position: 'fixed', border: 1, top: 90, right: 20, padding: '10px', borderRadius: '10px',}}
+    sx={{position: 'fixed', backgroundColor: 'rgba(255, 255, 235, .8)', border: 1, top: 90, right: 20, padding: '10px', borderRadius: '10px',}}
 >
     <ToggleButtonGroup
       value={props.mode}
