@@ -85,9 +85,10 @@ function App() {
       'selection:created': (opt) => fabricEvents.handleSelectionCreated(opt, canvas),
       'selection:updated': (opt) => fabricEvents.handleSelectionUpdated(opt, canvas),
       'selection:cleared': (opt) => fabricEvents.handleSelectionCleared(opt, canvas),
-      // 'object:modified': (opt) => {console.log("modified"); console.log(opt)},
-      // 'object:added': (opt) => {console.log("added"); console.log(opt)},
-      // 'object:removed': (opt) => {console.log("removed"); console.log(opt)},
+      'before:transform': (opt) => {
+        canvas.state.disableModeSwitch = canvas.state.disableUndo = true;
+      },
+      'object:modified': (opt) => fabricEvents.handleObjectModified(opt, canvas),
     });
 
     window.onresize = function() {
@@ -276,6 +277,13 @@ function App() {
         canvas.remove(...command.newObjects);
         canvas.add(...command.oldObjects);
         break;
+      case 'drag':
+        command.objects.map((obj) => {
+          obj.left -= command.dX;
+          obj.top -= command.dY;
+          obj.setCoords();
+        });
+        break;
       default:
         console.log("Unexpected behavior in handleUndo()");
     }
@@ -305,6 +313,13 @@ function App() {
       case 'replace':
         canvas.remove(...command.oldObjects);
         canvas.add(...command.newObjects);
+        break;
+      case 'drag':
+        command.objects.map((obj) => {
+          obj.left += command.dX;
+          obj.top += command.dY;
+          obj.setCoords();
+        });
         break;
       default:
         console.log("Unexpected behavior in handleRedo()");

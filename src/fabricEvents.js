@@ -27,6 +27,25 @@ export function handlePathCreated(opt, canvas) {
   });
 }
 
+export function handleObjectModified(opt, canvas) {
+  if (opt.action !== 'drag') {
+    console.log('Unexpected transform in handleObjectModified');
+    return;
+  }
+  canvas.state.disableModeSwitch = canvas.state.disableUndo = false; // already set by mouseUp but just to be sure
+  
+  let objects = opt.target.type === 'activeSelection'
+                ? opt.target.getObjects()
+                : [opt.target];
+
+  canvas.fire('saveState', {
+    action: 'drag',
+    objects: objects,
+    dX: opt.transform.target.left - opt.transform.original.left,
+    dY: opt.transform.target.top - opt.transform.original.top,
+  })
+}
+
 export function handleScroll(opt, canvas) {
   var zoom = canvas.getZoom();
   zoom *= .999 ** opt.e.deltaY;
