@@ -68,7 +68,6 @@ function PrintDialog({ open, handleClose, handlePrint }) {
       // 96 pixels = 1 inch
       let scale = 96 / (formValues.squares * CELL_SIZE / formValues.inches)
 
-      console.log(handlePrint);
       handlePrint(aTlX, aTlY, aBrX - aTlX, aBrY - aTlY, scale);
       handleClose();
     }

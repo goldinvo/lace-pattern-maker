@@ -1,3 +1,5 @@
+// AI-assisted code
+
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -12,10 +14,11 @@ import {
   Typography
 } from '@mui/material';
 
-function ExportImportDialog({ open, handleClose, exportJSON, setExportJSON, handleImport, handleExport }) {
+function ExportImportDialog({ open, handleClose, getExportJSON, handleImport }) {
   const [mode, setMode] = useState('export');
   const [importedJson, setImportedJson] = useState('');
   const [copied, setCopied] = useState(false);
+  const [exportJSON, setExportJSON] = useState('');
 
   const handleModeChange = (event, newMode) => {
     if (newMode !== null) {
@@ -25,6 +28,10 @@ function ExportImportDialog({ open, handleClose, exportJSON, setExportJSON, hand
         setExportJSON('');
       }
     }
+  };
+
+  const handleExport = () => {
+    setExportJSON(getExportJSON());
   };
 
   const handleImportChange = (event) => {

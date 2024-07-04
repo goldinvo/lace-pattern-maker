@@ -22,7 +22,7 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 
 function Header(props) {
   const [printOpen, setPrintOpen] = useState(false);
-  const [importExportOpen, setImportExportOpen] = useState(false);
+  const [exportImportOpen, setExportImportOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
 
   return (
@@ -69,7 +69,7 @@ function Header(props) {
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Button color="inherit" onClick={() => setImportExportOpen(true)}>
+          <Button color="inherit" onClick={() => setExportImportOpen(true)}>
             Export/Import
           </Button>
           <Button color="inherit" onClick={() => setPrintOpen(true)}>
@@ -80,15 +80,10 @@ function Header(props) {
           </Button>
         </Box>
         <ExportImportDialog
-          open={importExportOpen}
-          handleClose={() => {
-            setImportExportOpen(false);
-            props.setExportJSON('');
-          }}
-          exportJSON={props.exportJSON}
-          setExportJSON={props.setExportJSON}
+          open={exportImportOpen}
+          handleClose={() => { setExportImportOpen(false) }}
           handleImport={props.handleImport}
-          handleExport={props.handleExport}
+          getExportJSON={props.getExportJSON}
         />
         <PrintDialog
           open={printOpen}
