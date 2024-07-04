@@ -1,11 +1,30 @@
 import * as constants from './constants.js'
 import * as utils from './utils.js'
 
-function snapToGrid({x, y}) {
-  return {
-    x: Math.round(x / constants.CELL_SIZE) * constants.CELL_SIZE, 
-    y: Math.round(y / constants.CELL_SIZE) * constants.CELL_SIZE, 
-  };
+// opt (command): provide command object {action: ..., } to save to undo history
+export function handleSaveState(command, canvas, setStateView) {
+  // command defaults to {} for no arg
+  if (Object.keys(command).length !== 0) {
+    if (command.action === 'undo') {
+      canvas.state.redoStack.push(command.undoneCommand);
+    } else if (command.action === 'redo') {
+      canvas.state.undoStack.push(command.redidCommand);
+    } else {
+      // Going down new branch; kill the redo path
+      canvas.state.redoStack.clear();
+      canvas.state.undoStack.push(command);
+    }
+  }
+  setStateView({...canvas.state});
+  canvas.renderAll();
+}
+
+export function handlePathCreated(opt, canvas) {
+  opt.path.set(utils.defaultPath);
+  canvas.fire('saveState', {
+    action: 'add',
+    objects: [opt.path],
+  });
 }
 
 export function handleScroll(opt, canvas) {
@@ -30,7 +49,7 @@ export function handleMouseDown(opt, canvas) {
       switch(canvas.state.drawMode) {
         case 'point':
           let coords = opt.absolutePointer;
-          if (canvas.state.snap) coords = snapToGrid(coords);
+          if (canvas.state.snap) coords = utils.snapToGrid(coords);
 
           const circle = new fabric.Circle({
             ...utils.defaultCircle,
@@ -46,7 +65,7 @@ export function handleMouseDown(opt, canvas) {
         case 'line':
           if (!canvas.state.p1) {
             let p1Coords = opt.absolutePointer;
-            if (canvas.state.snap) p1Coords = snapToGrid(p1Coords);
+            if (canvas.state.snap) p1Coords = utils.snapToGrid(p1Coords);
 
             let p1 = new fabric.Circle({
               ...utils.defaultCircle,
@@ -60,7 +79,7 @@ export function handleMouseDown(opt, canvas) {
           } else if (!canvas.state.p2){
             let p1Coords = canvas.state.p1.getCenterPoint();
             let p2Coords = opt.absolutePointer;
-            if (canvas.state.snap) p2Coords = snapToGrid(p2Coords);
+            if (canvas.state.snap) p2Coords = utils.snapToGrid(p2Coords);
             let p3Coords = {  
               x: (p1Coords.x + p2Coords.x) / 2,
               y: (p1Coords.y + p2Coords.y) / 2,
@@ -208,7 +227,7 @@ export function handleMouseUp(opt, canvas) {
       if (opt.isClick && !opt.target) {
         // draw meta point
         let absCoords = opt.absolutePointer;
-        if (canvas.state.snap) absCoords = snapToGrid(absCoords);
+        if (canvas.state.snap) absCoords = utils.snapToGrid(absCoords);
         let metaPoint = new fabric.Circle({
           ...utils.defaultCircle,
           left: absCoords.x,

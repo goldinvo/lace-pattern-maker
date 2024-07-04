@@ -41,6 +41,13 @@ export function absoluteToUser(absCoords) {
   }
 }
 
+export function snapToGrid({x, y}) {
+  return {
+    x: Math.round(x / constants.CELL_SIZE) * constants.CELL_SIZE, 
+    y: Math.round(y / constants.CELL_SIZE) * constants.CELL_SIZE, 
+  };
+}
+
 export function resetMetaPointState(canvas) {
   canvas.remove(canvas.state.curMetaPoint);
   canvas.state.curMetaPoint = null;

@@ -76,6 +76,8 @@ function App() {
 
     // Fabric events handlers
     canvas.on({
+      'saveState': (opt) => fabricEvents.handleSaveState(opt, canvas, setStateView),
+      'path:created': (opt) => fabricEvents.handlePathCreated(opt, canvas),
       'mouse:wheel': (opt) => fabricEvents.handleScroll(opt, canvas),
       'mouse:down': (opt) => fabricEvents.handleMouseDown(opt, canvas),
       'mouse:move': (opt) => fabricEvents.handleMouseMove(opt, canvas),
@@ -86,29 +88,6 @@ function App() {
       // 'object:modified': (opt) => {console.log("modified"); console.log(opt)},
       // 'object:added': (opt) => {console.log("added"); console.log(opt)},
       // 'object:removed': (opt) => {console.log("removed"); console.log(opt)},
-      'path:created': (opt) => {
-        opt.path.set(utils.defaultPath)
-        canvas.fire('saveState', {
-          action: 'add',
-          objects: [opt.path],
-        })
-      },
-      'saveState': (command) => { // command: optional. Means you want to save action in undo log
-        // opt defaults to {} for no arg
-        if (Object.keys(command).length !== 0) {
-          if (command.action === 'undo') {
-            canvas.state.redoStack.push(command.undoneCommand);
-          } else if (command.action === 'redo') {
-            canvas.state.undoStack.push(command.redidCommand);
-          } else {
-            // Going down new branch; kill the redo path
-            canvas.state.redoStack.clear();
-            canvas.state.undoStack.push(command);
-          }
-        }
-        setStateView({...canvas.state});
-        canvas.renderAll();
-      }
     });
 
     window.onresize = function() {
