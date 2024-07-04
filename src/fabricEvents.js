@@ -19,7 +19,7 @@ export function handleScroll(opt, canvas) {
 }
 
 export function handleMouseDown(opt, canvas) {
-  let historySnapshot = null;
+  let commandToSave = null;
   switch(canvas.state.mode) {
     case 'pan':
       canvas.state.isDragging = true;
@@ -38,7 +38,7 @@ export function handleMouseDown(opt, canvas) {
             top: coords.y,
           });
           canvas.add(circle);
-          historySnapshot = {
+          commandToSave = {
             action: 'add',
             objects: [circle],
           };
@@ -66,16 +66,6 @@ export function handleMouseDown(opt, canvas) {
               y: (p1Coords.y + p2Coords.y) / 2,
             }
 
-            let line = new fabric.Path( 
-              `M ${p1Coords.x} ${p1Coords.y} Q ${p3Coords.x}, ${p3Coords.y}, ${p2Coords.x}, ${p2Coords.y}`, 
-              utils.defaultPath
-            );
-
-            canvas.add(line); //canvas.insertAt??
-            canvas.state.curLine = line;
-            canvas.sendToBack(line);
-            canvas.sendToBack(canvas.state.bg);
-
             let p2 = new fabric.Circle({
               ...utils.defaultCircle,
               fill: constants.META_COLOR,
@@ -95,11 +85,28 @@ export function handleMouseDown(opt, canvas) {
             canvas.add(p3);
             canvas.state.p3 = p3;
 
+            let line = new fabric.Path( 
+              `M ${p1Coords.x} ${p1Coords.y} Q ${p3Coords.x}, ${p3Coords.y}, ${p2Coords.x}, ${p2Coords.y}`, 
+              utils.defaultPath
+            );
+            canvas.add(line); //canvas.insertAt??
+            canvas.state.originalLine = canvas.state.curLine = line;
+            canvas.bringToFront(canvas.state.p1);
+            canvas.bringToFront(canvas.state.p2);
+            canvas.bringToFront(canvas.state.p3);
+
+            commandToSave = {
+              action: 'add',
+              objects: [line],
+              undoCallback: () => utils.resetDrawLineState(canvas),
+            }
           } else if ( // replicate behavior of perPixelTargetFind
             canvas.state.p3.containsPoint(opt.pointer)
             && !canvas.isTargetTransparent(canvas.state.p3, opt.pointer.x, opt.pointer.y) 
           ) {
             canvas.state.isBending = true;
+            canvas.state.disableUndo = true;
+            canvas.state.disableModeSwitch = true;
           } else {
             utils.resetDrawLineState(canvas);
           }
@@ -110,17 +117,23 @@ export function handleMouseDown(opt, canvas) {
       break;
     case 'delete':
       canvas.state.isDeleting = true;
+      canvas.state.disableModeSwitch = true;
       if (opt.target) {
-        canvas.remove(opt.target);
         // TODO: what happens when you have groups?
+        canvas.remove(opt.target);
+        commandToSave = {
+          action: 'remove',
+          objects: [opt.target],
+        }
       }
     case 'select':
       break;
   }
-  canvas.fire('saveState', historySnapshot);
+  canvas.fire('saveState', commandToSave);
 }
 
 export function handleMouseMove(opt, canvas) {
+  let commandToSave = null;
   if (canvas.state.isDragging) {
     let vpt = canvas.viewportTransform;
     vpt[4] += opt.e.clientX - canvas.state.lastPosX;
@@ -129,8 +142,13 @@ export function handleMouseMove(opt, canvas) {
     canvas.state.lastPosY = opt.e.clientY;
   } else if (canvas.state.isDeleting) {
     if (opt.target) {
-      canvas.remove(opt.target);
+      // TODO: improve experience by interpolating delete stroke
       // TODO: what happens when you have groups?
+      canvas.remove(opt.target);
+      commandToSave = {
+        action: 'remove',
+        objects: [opt.target],
+      }
     }
   } else if (canvas.state.isBending) {
     // update p3 location
@@ -149,20 +167,36 @@ export function handleMouseMove(opt, canvas) {
     canvas.remove(canvas.state.curLine);
     canvas.add(newLine);
     canvas.state.curLine = newLine;
+    
+    canvas.bringToFront(canvas.state.p1);
+    canvas.bringToFront(canvas.state.p2);
+    canvas.bringToFront(canvas.state.p3);
+
+    // undo is currently disabled.
   }
   canvas.state.curPos = opt.absolutePointer;
-  canvas.fire('saveState');
+  canvas.fire('saveState', commandToSave);
 }
 
 export function handleMouseUp(opt, canvas) {
+  let commandToSave = null;
+  
   // on mouse up we want to recalculate new interaction
   // for all objects, so we call setViewportTransform
   canvas.setViewportTransform(canvas.viewportTransform);
   canvas.state.isDragging = false;
   canvas.state.isDeleting = false;
+  canvas.state.disableModeSwitch = false;
 
   if (canvas.state.isBending) {
+    commandToSave = {
+      action: 'replace',
+      oldObjects: [canvas.state.originalLine],
+      newObjects: [canvas.state.curLine],
+    }
     utils.resetDrawLineState(canvas);
+    canvas.state.disableUndo = false;
+    canvas.state.disableModeSwitch = false;
   }
 
   if (canvas.state.mode === 'select') {
@@ -190,7 +224,7 @@ export function handleMouseUp(opt, canvas) {
       utils.resetMetaPointState(canvas);
     }
   }
-  canvas.fire('saveState')
+  canvas.fire('saveState', commandToSave)
 }
 
 export function handleSelectionCreated(opt, canvas) {

@@ -44,6 +44,8 @@ function App() {
         selectionExists: false,
         clipboard: null,
         curMetaPoint: null,
+        disableUndo: false,
+        disableModeSwitch: false,
         // Note: everything below here may be unused by react components
         // Could separate out.
         isDragging: false,      
@@ -51,6 +53,7 @@ function App() {
         p1: null,
         p2: null,
         p3: null,
+        originalLine: null,
         curLine: null,
         isDeleting: false,
         lastPosX: null,
@@ -122,6 +125,7 @@ function App() {
 
   function handleMode(event, newMode){
     let canvas = fabRef.current;
+    if (canvas.state.disableModeSwitch) return;
     if (!newMode) {
       console.log("Unexpected behavior in App.jsx:handleMode");
       return;
@@ -132,6 +136,7 @@ function App() {
 
   function handleDrawMode(event, newDrawMode) {
     let canvas = fabRef.current;
+    if (canvas.state.disableModeSwitch) return;
     if (canvas.state.mode!=='draw' || !newDrawMode) {
       console.log("Unexpected behavior in App.jsx:handleDrawMode");
       return;
@@ -262,6 +267,8 @@ function App() {
   
   function handleUndo() {
     let canvas = fabRef.current;
+    if (canvas.state.disableUndo) return;
+
     let command = canvas.state.undoStack.pop()
     if (!command) return;
 
@@ -269,9 +276,18 @@ function App() {
       case 'add':
         canvas.remove(...command.objects);
         break;
+      case 'remove':
+        canvas.add(...command.objects);
+        break;
+      case 'replace':
+        canvas.remove(...command.newObjects);
+        canvas.add(...command.oldObjects);
+        break;
       default:
         console.log("Unexpected behavior in handleUndo()");
     }
+    if (command.undoCallback) command.undoCallback();
+
     canvas.fire('saveState', {
       action: 'undo',
       undoneCommand: command,
@@ -286,6 +302,13 @@ function App() {
     switch(command.action) {
       case 'add':
         canvas.add(...command.objects);
+        break;
+      case 'remove':
+        canvas.remove(...command.objects);
+        break;
+      case 'replace':
+        canvas.remove(...command.oldObjects);
+        canvas.add(...command.newObjects);
         break;
       default:
         console.log("Unexpected behavior in handleRedo()");

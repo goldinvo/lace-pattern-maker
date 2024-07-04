@@ -51,7 +51,7 @@ export function resetDrawLineState(canvas) {
   canvas.remove(canvas.state.p2);
   canvas.remove(canvas.state.p3);
   canvas.state.p1 = canvas.state.p2 = canvas.state.p3 = null;
-  canvas.state.curLine = null;
+  canvas.state.originalLine = canvas.state.curLine = null;
   canvas.state.isBending = false;
 }
 
@@ -63,6 +63,8 @@ export function resetCanvasState(canvas) {
   // Reset selection 
   canvas.discardActiveObject()
 
+  canvas.state.disableModeSwitch = false;
+  canvas.state.disableUndo = false;
   canvas.state.isDeleting = canvas.state.isDragging = false;
   canvas.state.lastPosX = canvas.state.lastPosY = null;
   resetDrawLineState(canvas);
