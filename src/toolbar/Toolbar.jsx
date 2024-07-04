@@ -27,7 +27,7 @@ export default function Toolbar(props) {
   
   }, [props.stateView, previousMode]);
   
-if (!props.stateView) return;
+  if (!props.stateView) return; // Need canvas to mount first so we have fabric state.
 
   let curPosUser = absoluteToUser(props.stateView.curPos);
   
@@ -39,13 +39,13 @@ if (!props.stateView) return;
       props.handleDelete();
     }
   }
+
   function handleKeyUp(e) {
     if (previousMode && e.key === "Alt") {
       props.handleMode(e, previousMode);
       setPreviousMode(null);
     }
   }
-
 
   const snapToggle = <FormControlLabel 
     disabled={props.stateView.mode !== "draw" && props.stateView.mode !== "select"}
@@ -79,18 +79,18 @@ if (!props.stateView) return;
     </ToggleButtonGroup>
 
     { (props.stateView.mode === "select") && <SelectPanel 
+                                    stateView={props.stateView}
                                     handleDelete={props.handleDelete} 
                                     handleCopy={props.handleCopy} 
                                     handlePaste={props.handlePaste}
                                     snapToggle={snapToggle}
-                                    stateView={props.stateView}
                                     />}
 
     { (props.stateView.mode === "draw") && <DrawPanel 
+                                  stateView={props.stateView}
                                   drawMode={props.drawMode} 
                                   handleDrawMode={props.handleDrawMode}
                                   snapToggle={snapToggle}
-                                  stateView={props.stateView}
                                   />}
 
     
