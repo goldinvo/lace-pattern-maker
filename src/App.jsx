@@ -5,6 +5,7 @@ import { fabric } from 'fabric'
 import * as fabricEvents from './fabricEvents.js'
 import * as constants from './constants.js'
 import * as utils from './utils.js'
+import FixedStack from './FixedStack.js'
 
 // Change defaults
 fabric.Group.prototype.hasControls = false;
@@ -12,47 +13,58 @@ fabric.Group.prototype.hasControls = false;
 function App() {
   const canvasRef = useRef(null);
   const fabRef = useRef(null);
-
-  const [curPos, setCurPos] = useState({x: 0, y: 0});
-  const [mode, setMode] = useState('select');
-  const [drawMode, setDrawMode] = useState('point');
-  const [snap, setSnap] = useState(true);
-  const [clipboard, setClipboard] = useState(null);
-  const [selectionExists, setSelectionExists] = useState(false);
-  const [metaExists, setMetaExists] = useState(false);
-  const [exportJSON, setExportJSON] = useState('');
+  
+  const [stateView, setStateView] = useState(null);
 
   useEffect(() => {
     // Initialize fabric
     fabRef.current = new fabric.Canvas(canvasRef.current, {
+      // static(-ish) parameters
       backgroundColor: constants.BACKGROUND_COLOR,
       width: window.outerWidth,
       height: window.outerHeight,
-      hoverCursor: 'pointer',
-      hasControls: false,
       selectionFullyContained: true, // watch for better selection feature: https://github.com/fabricjs/fabric.js/issues/3773
       preserveObjectStacking: true,
+      hoverCursor: 'pointer',
+      hasControls: false,
+
+      // NOTE: Canvas parameters that vary over time are changed in 
+      // resetCanvasState(). (The default parameters are fine for select mode)
+
+      // State, copied to stateView to be shared with React components
       state: {
-        mode: 'select',
-        drawMode: 'point',
+        // User parameters
+        mode: 'select',     // 'select' | 'pan' | 'draw' | 'delete'
+        drawMode: 'point',  // 'point' | 'line' | 'freehand'
         snap: true,
+
+        curPos: {x: 0, y: 0}, // TODO(?) curPos may be updated too frequently but I think it is ok for now
+        undoStack: new FixedStack(constants.MAX_HISTORY_LENGTH),
+        redoStack: new FixedStack(constants.MAX_HISTORY_LENGTH),
+        selectionExists: false,
+        clipboard: null,
+        curMetaPoint: null,
+        // Note: everything below here may be unused by react components
+        // Could separate out.
+        isDragging: false,      
+        isBending: false,
+        p1: null,
+        p2: null,
+        p3: null,
+        isDeleting: false,
+        lastPosX: null,
+        lastPosY: null,
+        bg: null,
       },
     });
     let canvas = fabRef.current;
 
-    
-    window.onresize = function() {
-      canvas.setWidth(window.outerWidth);
-      canvas.setHeight(window.outerHeight);
-    };
-
-    // Initialize background grid
+    // Attach background grid
     let bg = new utils.infBGrid();
-    canvas.state.bg = bg; // just to be able to send to back later
+    canvas.state.bg = bg; 
     canvas.add(bg);
-    canvas.renderAll();
 
-    // Initialize brush
+    // Attach brush
     let brush = new fabric.PencilBrush(canvas);
     brush.color = constants.DRAW_COLOR;
     brush.width = constants.LINE_WIDTH;
@@ -62,63 +74,79 @@ function App() {
     canvas.on({
       'mouse:wheel': (opt) => fabricEvents.handleScroll(opt, canvas),
       'mouse:down': (opt) => fabricEvents.handleMouseDown(opt, canvas),
-      'mouse:move': (opt) => setCurPos(fabricEvents.handleMouseMove(opt, canvas)),
-      'mouse:up': (opt) => fabricEvents.handleMouseUp(opt, canvas, setMetaExists),
-
-      'selection:created': (opt) => {
-        setSelectionExists(true);
-        fabricEvents.handleSelectionCreated(opt, canvas);
-      },
+      'mouse:move': (opt) => fabricEvents.handleMouseMove(opt, canvas),
+      'mouse:up': (opt) => fabricEvents.handleMouseUp(opt, canvas),
+      'selection:created': (opt) => fabricEvents.handleSelectionCreated(opt, canvas),
       'selection:updated': (opt) => fabricEvents.handleSelectionUpdated(opt, canvas),
-      'selection:cleared': (opt) => {
-        setSelectionExists(false);
-        fabricEvents.handleSelectionCleared(opt, canvas);
-      },
-      'path:created': (opt) => {opt.path.set(utils.defaultPath)}
+      'selection:cleared': (opt) => fabricEvents.handleSelectionCleared(opt, canvas),
+      'object:modified': (opt) => {console.log("modified"); console.log(opt)},
+      'object:added': (opt) => {console.log("added"); console.log(opt)},
+      'object:removed': (opt) => {console.log("removed"); console.log(opt)},
+      'path:created': (opt) => {opt.path.set(utils.defaultPath)},
+      'saveState': (opt) => {
+        console.log("saveState" + "save to history: " + Boolean(opt));
+        setStateView({...canvas.state});
+        canvas.renderAll();
+      }
     });
+
+    window.onresize = function() {
+      canvas.setWidth(window.outerWidth);
+      canvas.setHeight(window.outerHeight);
+    };
+    
+    // Initialize in drawing mode and render canvas
+    utils.resetCanvasState(canvas);
 
     // Cleanup on unmount
     return () => {
       fabRef.current.dispose();
     };
   }, []);
+  
+  // =====================================================================
+  // Handlers for user-initiated events
+  //
 
   function handleMode(event, newMode){
     let canvas = fabRef.current;
-    if (newMode !== null){
-      setMode(newMode);
-      canvas.state.mode = newMode;
-      utils.resetCanvasState(canvas, setMetaExists);
+    if (!newMode) {
+      console.log("Unexpected behavior in App.jsx:handleMode");
+      return;
     }
+    canvas.state.mode = newMode;
+    utils.resetCanvasState(canvas);
   };
 
   function handleDrawMode(event, newDrawMode) {
     let canvas = fabRef.current;
-    if (mode==='draw' && newDrawMode !== null){
-      setDrawMode(newDrawMode);
-      canvas.state.drawMode = newDrawMode;
-      utils.resetCanvasState(canvas, setMetaExists);
+    if (canvas.state.mode!=='draw' || !newDrawMode) {
+      console.log("Unexpected behavior in App.jsx:handleDrawMode");
+      return;
     }
+    canvas.state.drawMode = newDrawMode;
+    utils.resetCanvasState(canvas);
   }
 
   function handleSnap(event) {
-    setSnap(event.target.checked);
-    fabRef.current.state.snap = event.target.checked;
+    let canvas = fabRef.current;
+    canvas.state.snap = event.target.checked;
+    canvas.fire('saveState');
   }
 
   function handleCopy() {
     let canvas = fabRef.current;
     if (canvas.getActiveObject()) {
       canvas.getActiveObject().clone(function(cloned) {
-        setClipboard(cloned);
         canvas.state.clipboard = cloned;
       }, [...Object.keys(utils.defaultCircle), ...Object.keys(utils.defaultPath)]);
     }
+    canvas.fire('saveState');
   }
 
   function handlePaste() {
     let canvas = fabRef.current;
-    if (clipboard && metaExists) {
+    if (canvas.state.clipboard && canvas.state.curMetaPoint) {
       let metaPoint = canvas.state.curMetaPoint;
       // clone again, so you can do multiple copies.
       clipboard.clone(function(clonedObj) {
@@ -141,19 +169,24 @@ function App() {
         canvas.setActiveObject(clonedObj);
         canvas.requestRenderAll();
       }, [...Object.keys(utils.defaultCircle), ...Object.keys(utils.defaultPath)]);
+      canvas.fire('saveState', true);
     }  
   }
 
   function handleDelete() {
     let canvas = fabRef.current;
-    let activeObject = canvas.getActiveObjects();
+    let activeObjects = canvas.getActiveObjects();
     canvas.discardActiveObject();
-    canvas.remove(...activeObject);
+    canvas.remove(activeObjects);
+    canvas.fire('saveState', true);
   }
 
-  // make sure to use absolute coordinates/scaling
+  // make sure to use call parameters w/ absolute coordinates
   function handlePrint(x, y, width, height, scale) {
     let canvas = fabRef.current;
+    utils.resetCanvasState(canvas);
+
+    // Create a temp canvas representing our print selection (white background, no grid)
     canvas.remove(canvas.state.bg);
     canvas.backgroundColor = 'white';
     let tempCanvas = new fabric.StaticCanvas().loadFromJSON(canvas.toJSON());
@@ -164,11 +197,12 @@ function App() {
     tempCanvas.setHeight(height);
     tempCanvas.setWidth(width);
     tempCanvas.absolutePan({x, y});
-    let dataURL = tempCanvas.toDataURL({
+    let dataURL = tempCanvas.toDataURL({  // our image!
       multiplier: scale,
     });
     tempCanvas.dispose();
     
+    // Plop dataUrl into new window and print
     let title = "title";
     let windowContent = `
     <!DOCTYPE html>
@@ -183,45 +217,54 @@ function App() {
     printWin.document.close();
   }
 
-  // TODO: probably not catching all the properties that I want
-  // Also kinda gross what i'm doing with background should probably
-  // just fix the class
-  function handleExport() {
+  // handler 'handleExport()' can be managed by component, just have a getter
+  function getExportJSON() {
     let canvas = fabRef.current;
+    utils.resetCanvasState(canvas);
+
     canvas.remove(canvas.state.bg);
-    setExportJSON(JSON.stringify(fabRef.current.toJSON(), null, 2));
+    let exportJSON = JSON.stringify(canvas.toJSON(), null, 2);
     canvas.add(canvas.state.bg);
     canvas.sendToBack(canvas.state.bg);
+
+    return exportJSON;
   }
 
-  function handleImport(importedJson) {
-    let parsedJson;
+  function handleImport(importJSON) {
+  
+    let canvas = fabRef.current;
+    canvas.resetCanvasState();
+    let state = canvas.state;
     try {
-      parsedJson = JSON.parse(importedJson);
+      canvas.loadFromJSON(importJSON);
     } catch (error) {
       alert('Invalid JSON format. Please correct and try again.');
     }
-    let canvas = fabRef.current;
-    let state = canvas.state;
-    fabRef.current.loadFromJSON(parsedJson);
     canvas.state = state;
     canvas.add(canvas.state.bg);
     canvas.sendToBack(canvas.state.bg);
   }
+  
+  // function handleUndo() {
+  //   let prevAction = canvas.state.undoStack.pop()
+  //   if (!prevAction) return;
 
+  //   canvas.remove(prevAction.objects);
+
+  // }
 
   let headerPropagate = {
-    handlePrint,
-    exportJSON, setExportJSON, handleImport, handleExport
+    stateView,
+    handlePrint, 
+    handleImport, getExportJSON
   }
 
   let toolbarPropagate = {
-    curPos, 
-    selectionExists,
-    mode, handleMode,
-    drawMode, handleDrawMode,
-    snap, handleSnap,
-    clipboard, handleCopy, handlePaste, metaExists,
+    stateView,
+    handleMode,
+    handleDrawMode,
+    handleSnap,
+    handleCopy, handlePaste,
     handleDelete,
   }
 
@@ -229,7 +272,7 @@ function App() {
     <div>
       <Header {...headerPropagate}/>
       <canvas ref={canvasRef}> 
-        Could not load canvas. Please update browser or enable JavaScript.
+        Could not load canvas.
       </canvas>
       <Toolbar {...toolbarPropagate}/>
     </div>
