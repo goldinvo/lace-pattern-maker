@@ -19,6 +19,7 @@ export function handleScroll(opt, canvas) {
 }
 
 export function handleMouseDown(opt, canvas) {
+  let historySnapshot = null;
   switch(canvas.state.mode) {
     case 'pan':
       canvas.state.isDragging = true;
@@ -37,6 +38,7 @@ export function handleMouseDown(opt, canvas) {
             top: coords.y,
           });
           canvas.add(circle);
+          historySnapshot = true;
           break;
         case 'line':
           if (!canvas.state.p1) {
@@ -112,6 +114,7 @@ export function handleMouseDown(opt, canvas) {
     case 'select':
       break;
   }
+  canvas.fire('saveState', historySnapshot);
 }
 
 export function handleMouseMove(opt, canvas) {
@@ -119,7 +122,6 @@ export function handleMouseMove(opt, canvas) {
     let vpt = canvas.viewportTransform;
     vpt[4] += opt.e.clientX - canvas.state.lastPosX;
     vpt[5] += opt.e.clientY - canvas.state.lastPosY;
-    canvas.requestRenderAll();
     canvas.state.lastPosX = opt.e.clientX;
     canvas.state.lastPosY = opt.e.clientY;
   } else if (canvas.state.isDeleting) {
@@ -145,10 +147,11 @@ export function handleMouseMove(opt, canvas) {
     canvas.add(newLine);
     canvas.state.curLine = newLine;
   }
-  return opt.absolutePointer;
+  canvas.state.curPos = opt.absolutePointer;
+  canvas.fire('saveState');
 }
 
-export function handleMouseUp(opt, canvas, setMetaExists) {
+export function handleMouseUp(opt, canvas) {
   // on mouse up we want to recalculate new interaction
   // for all objects, so we call setViewportTransform
   canvas.setViewportTransform(canvas.viewportTransform);
@@ -177,18 +180,20 @@ export function handleMouseUp(opt, canvas, setMetaExists) {
         canvas.add(metaPoint);
         canvas.bringToFront(metaPoint);
         canvas.state.curMetaPoint = metaPoint;
-        setMetaExists(true);
       } else {
-        utils.resetMetaPointState(canvas, setMetaExists);
+        utils.resetMetaPointState(canvas);
       }
     } else if (opt.isClick && !opt.target) {
-      utils.resetMetaPointState(canvas, setMetaExists);
+      utils.resetMetaPointState(canvas);
     }
   }
+  canvas.fire('saveState')
 }
 
 export function handleSelectionCreated(opt, canvas) {
   handleSelectionUpdated(opt, canvas);
+  canvas.state.selectionExists = true;
+  canvas.fire('saveState');
 }
 
 export function handleSelectionUpdated(opt, canvas) {
@@ -204,5 +209,7 @@ export function handleSelectionUpdated(opt, canvas) {
 
 export function handleSelectionCleared(opt, canvas) {
   handleSelectionUpdated(opt, canvas);
+  canvas.state.selectionExists = false;
+  canvas.fire('saveState');
 }
 

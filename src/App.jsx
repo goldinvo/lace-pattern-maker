@@ -51,6 +51,7 @@ function App() {
         p1: null,
         p2: null,
         p3: null,
+        curLine: null,
         isDeleting: false,
         lastPosX: null,
         lastPosY: null,
@@ -149,7 +150,7 @@ function App() {
     if (canvas.state.clipboard && canvas.state.curMetaPoint) {
       let metaPoint = canvas.state.curMetaPoint;
       // clone again, so you can do multiple copies.
-      clipboard.clone(function(clonedObj) {
+      canvas.state.clipboard.clone(function(clonedObj) {
         clonedObj.set({
           left: metaPoint.aCoords.tl.x,
           top: metaPoint.aCoords.tl.y,

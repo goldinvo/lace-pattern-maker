@@ -1,26 +1,9 @@
 # Rough Documentation
+based on: https://stackoverflow.com/questions/37565041/how-can-i-use-fabric-js-with-react
 
-Fabric.js integration with React is somewhat limited. I work around this by keeping a fabRef reference to the fabric and storing its state in fabRef.current.state (to avoid name conflicts).
+The main canvas is an uncontrolled canvas. It is the source of truth regarding
+any state it may interact with. Any changes to canvas state should follow by
+firing the 'saveState', which pushes a copy of the current state onto 
+stateView, which is what children components interact with.
 
-Any state that needs to be shared with React UI components has a corresponding useState call. Any updates to state **must** update both React state and Fabric canvas state.
 
-## State members
-[Fabric member] (=> React member):
-- `(None)` => `curPos`
-- `(None)` => `existsSelection`  (access selection using getActiveObjects)
-- `clipboard` == `clipboard`
-- `mode` <= `mode` 'select' | 'pan' | 'draw' | 'delete'
-- `drawMode`<= `drawMode` 'point' | 'line' | 'freehand'
-- `defaultCursor`*  update synchronously w/ `mode` *library state
-- `skipTargetFind`* sync with mode
-- `selection`*    sync with mode
-- `isDragging`
-- `isDeleting`
-- `isBending`
-- `lastPosX`
-- `lastPosY`
-- `curMetaPoint` => `metaExists`
-- `snap` => `snap`
-- `metaPoint`
-- `p1`, `p2`, `p3`, `isBending`, `curLine`
-- `isDrawingMode`*

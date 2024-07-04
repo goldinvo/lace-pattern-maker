@@ -12,3 +12,4 @@ export const PENCIL_WIDTH = 3;
 export const MAX_SCALE = 3;
 export const MIN_SCALE = 0.3;
 
+export const MAX_HISTORY_LENGTH = 20;

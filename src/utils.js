@@ -33,18 +33,17 @@ export function userToAbsolute(userCoords) {
   }
 }
 
-export function absoluteToUser(userCoords) {
-  if (typeof userCoords == 'object') {
-    return {x: userCoords.x / constants.CELL_SIZE, y: userCoords.y / constants.CELL_SIZE};
+export function absoluteToUser(absCoords) {
+  if (typeof absCoords == 'object') {
+    return {x: absCoords.x / constants.CELL_SIZE, y: absCoords.y / constants.CELL_SIZE};
   } else {
-    return userCoords / constants.CELL_SIZE;
+    return absCoords / constants.CELL_SIZE;
   }
 }
 
-export function resetMetaPointState(canvas, setMetaExists) {
+export function resetMetaPointState(canvas) {
   canvas.remove(canvas.state.curMetaPoint);
   canvas.state.curMetaPoint = null;
-  setMetaExists(false);
 }
 
 export function resetDrawLineState(canvas) {
@@ -59,46 +58,49 @@ export function resetDrawLineState(canvas) {
 // Remember to set React state as well, if it applies
 // Call on all mode changes, including draw mode!!
 // curPos not updating is expected behavior
-// what about existSelection?
-export function resetCanvasState(canvas, setMetaExists) {
-    // Reset selection
-    canvas.discardActiveObject().renderAll();
+// what about existSelection? guessing discardActiveObject takes care of that
+export function resetCanvasState(canvas) {
+  // Reset selection 
+  canvas.discardActiveObject()
 
-  
-    resetDrawLineState(canvas);
-    resetMetaPointState(canvas, setMetaExists);
+  canvas.state.isDeleting = canvas.state.isDragging = false;
+  canvas.state.lastPosX = canvas.state.lastPosY = null;
+  resetDrawLineState(canvas);
+  resetMetaPointState(canvas);
 
-    let mode = canvas.state.mode;
-    switch (mode) {
-        case 'select':
-          canvas.defaultCursor = 'default';
-          canvas.selection = true;
-          canvas.skipTargetFind = false;
-          fabric.Object.prototype.selectable = true;
-          canvas.isDrawingMode = false;
-          break;
-        case 'draw':
-            canvas.defaultCursor = 'crosshair';
-            canvas.selection = false;
-            canvas.skipTargetFind = true;
-            // fabric.Object.prototype.selectable = false;
-            canvas.isDrawingMode = canvas.state.drawMode==='freehand';
-            break;
-        case 'pan':
-          canvas.defaultCursor = 'grab';
-          canvas.selection = false;
-          canvas.skipTargetFind = true;
-          // fabric.Object.prototype.selectable = false; // N/A if skipTargetFind
-          canvas.isDrawingMode = false;
-          break;
-        case 'delete':
-          canvas.defaultCursor = 'crosshair';
-          canvas.selection = false;
-          canvas.skipTargetFind = false;
-          fabric.Object.prototype.selectable = false;
-          canvas.isDrawingMode = false;
-          break;
-      }
+  let mode = canvas.state.mode;
+  switch (mode) {
+    case 'select':
+      canvas.defaultCursor = 'default';
+      canvas.selection = true;
+      canvas.skipTargetFind = false;
+      fabric.Object.prototype.selectable = true;
+      canvas.isDrawingMode = false;
+      break;
+    case 'draw':
+      canvas.defaultCursor = 'crosshair';
+      canvas.selection = false;
+      canvas.skipTargetFind = true;
+      fabric.Object.prototype.selectable = false;
+      canvas.isDrawingMode = canvas.state.drawMode==='freehand';
+      break;
+    case 'pan':
+      canvas.defaultCursor = 'grab';
+      canvas.selection = false;
+      canvas.skipTargetFind = true;
+      fabric.Object.prototype.selectable = false; 
+      canvas.isDrawingMode = false;
+      break;
+    case 'delete':
+      canvas.defaultCursor = 'crosshair';
+      canvas.selection = false;
+      canvas.skipTargetFind = false;
+      fabric.Object.prototype.selectable = false;
+      canvas.isDrawingMode = false;
+      break;
+  }
+
+  canvas.fire('saveState');
 }
 
 // Grid https://stackoverflow.com/questions/68604136/fabric-js-canvas-infinite-background-grid-like-miro
