@@ -22,10 +22,6 @@ class FixedStack extends Array {
     clear() {
         this.length = 0; // apparently kosher
     }
-
-    clone() {
-        return this.slice();
-    }
 }
 
 export default FixedStack;

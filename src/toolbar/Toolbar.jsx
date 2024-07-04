@@ -9,7 +9,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import SvgIcon from '@mui/material/SvgIcon';
 import SelectPanel from "./SelectPanel.jsx";
 import DrawPanel from "./DrawPanel.jsx"
-import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
 import { absoluteToUser } from '../utils.js';
 
 
@@ -96,6 +96,9 @@ export default function Toolbar(props) {
     
 
     <Chip label={'x: ' + curPosUser.x.toFixed(1) + '\ty: ' + curPosUser.y.toFixed(1)}/>
+    <Button disabled={false} variant="contained" onClick={props.handleUndo}>Undo</Button>
+    <Button disabled={false} variant="contained" onClick={props.handleRedo}>Redo</Button>
+
   </Stack>
   )
 }

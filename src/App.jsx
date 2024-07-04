@@ -80,12 +80,23 @@ function App() {
       'selection:created': (opt) => fabricEvents.handleSelectionCreated(opt, canvas),
       'selection:updated': (opt) => fabricEvents.handleSelectionUpdated(opt, canvas),
       'selection:cleared': (opt) => fabricEvents.handleSelectionCleared(opt, canvas),
-      'object:modified': (opt) => {console.log("modified"); console.log(opt)},
-      'object:added': (opt) => {console.log("added"); console.log(opt)},
-      'object:removed': (opt) => {console.log("removed"); console.log(opt)},
+      // 'object:modified': (opt) => {console.log("modified"); console.log(opt)},
+      // 'object:added': (opt) => {console.log("added"); console.log(opt)},
+      // 'object:removed': (opt) => {console.log("removed"); console.log(opt)},
       'path:created': (opt) => {opt.path.set(utils.defaultPath)},
-      'saveState': (opt) => {
-        console.log("saveState" + "save to history: " + Boolean(opt));
+      'saveState': (command) => { // command: optional. Means you want to save action in undo log
+        // opt defaults to {} for no arg
+        if (Object.keys(command).length !== 0) {
+          if (command.action === 'undo') {
+            canvas.state.redoStack.push(command.undoneCommand);
+          } else if (command.action === 'redo') {
+            canvas.state.undoStack.push(command.redidCommand);
+          } else {
+            // Going down new branch; kill the redo path
+            canvas.state.redoStack.clear();
+            canvas.state.undoStack.push(command);
+          }
+        }
         setStateView({...canvas.state});
         canvas.renderAll();
       }
@@ -170,16 +181,19 @@ function App() {
         canvas.setActiveObject(clonedObj);
         canvas.requestRenderAll();
       }, [...Object.keys(utils.defaultCircle), ...Object.keys(utils.defaultPath)]);
-      canvas.fire('saveState', true);
+      // canvas.fire('saveState', true);
+      canvas.fire('saveState');
     }  
   }
 
   function handleDelete() {
     let canvas = fabRef.current;
     let activeObjects = canvas.getActiveObjects();
+    console.log(activeObjects);
     canvas.discardActiveObject();
-    canvas.remove(activeObjects);
-    canvas.fire('saveState', true);
+    canvas.remove(...activeObjects);
+    // canvas.fire('saveState', true);
+    canvas.fire('saveState');
   }
 
   // make sure to use call parameters w/ absolute coordinates
@@ -246,13 +260,41 @@ function App() {
     canvas.sendToBack(canvas.state.bg);
   }
   
-  // function handleUndo() {
-  //   let prevAction = canvas.state.undoStack.pop()
-  //   if (!prevAction) return;
+  function handleUndo() {
+    let canvas = fabRef.current;
+    let command = canvas.state.undoStack.pop()
+    if (!command) return;
 
-  //   canvas.remove(prevAction.objects);
+    switch (command.action) {
+      case 'add':
+        canvas.remove(...command.objects);
+        break;
+      default:
+        console.log("Unexpected behavior in handleUndo()");
+    }
+    canvas.fire('saveState', {
+      action: 'undo',
+      undoneCommand: command,
+    });
+  }
 
-  // }
+  function handleRedo() {
+    let canvas = fabRef.current;
+    let command = canvas.state.redoStack.pop()
+    if (!command) return;
+
+    switch(command.action) {
+      case 'add':
+        canvas.add(...command.objects);
+        break;
+      default:
+        console.log("Unexpected behavior in handleRedo()");
+    }
+    canvas.fire('saveState', {
+      action: 'redo',
+      redidCommand: command,
+    })
+  }
 
   let headerPropagate = {
     stateView,
@@ -267,6 +309,7 @@ function App() {
     handleSnap,
     handleCopy, handlePaste,
     handleDelete,
+    handleUndo, handleRedo
   }
 
   return (

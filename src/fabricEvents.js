@@ -38,7 +38,10 @@ export function handleMouseDown(opt, canvas) {
             top: coords.y,
           });
           canvas.add(circle);
-          historySnapshot = true;
+          historySnapshot = {
+            action: 'add',
+            objects: [circle],
+          };
           break;
         case 'line':
           if (!canvas.state.p1) {
