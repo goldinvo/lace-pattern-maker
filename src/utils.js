@@ -61,7 +61,7 @@ export function resetDrawLineState(canvas) {
 // what about existSelection? guessing discardActiveObject takes care of that
 export function resetCanvasState(canvas) {
   // Reset selection 
-  canvas.discardActiveObject()
+  canvas.discardActiveObject();
 
   canvas.state.disableModeSwitch = false;
   canvas.state.disableUndo = false;

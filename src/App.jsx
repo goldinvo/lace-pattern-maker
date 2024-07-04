@@ -162,43 +162,54 @@ function App() {
   }
 
   function handlePaste() {
+    let commandToSave;
     let canvas = fabRef.current;
-    if (canvas.state.clipboard && canvas.state.curMetaPoint) {
-      let metaPoint = canvas.state.curMetaPoint;
-      // clone again, so you can do multiple copies.
-      canvas.state.clipboard.clone(function(clonedObj) {
-        clonedObj.set({
-          left: metaPoint.aCoords.tl.x,
-          top: metaPoint.aCoords.tl.y,
-          evented: true,
+    if (!canvas.state.clipboard || !canvas.state.curMetaPoint) return;
+  
+    let metaPoint = canvas.state.curMetaPoint;
+    // clone again, so you can do multiple copies.
+    canvas.state.clipboard.clone(function(clonedObj) {
+      clonedObj.set({
+        left: metaPoint.aCoords.tl.x,
+        top: metaPoint.aCoords.tl.y,
+        evented: true,
+      });
+      if (clonedObj.type === 'activeSelection') {
+        // active selection needs a reference to the canvas.
+        clonedObj.canvas = canvas;
+        clonedObj.forEachObject(function(obj) {
+          canvas.add(obj);
         });
-        if (clonedObj.type === 'activeSelection') {
-          // active selection needs a reference to the canvas.
-          clonedObj.canvas = canvas;
-          clonedObj.forEachObject(function(obj) {
-            canvas.add(obj);
-          });
-          // this should solve the unselectability
-          clonedObj.setCoords();
-        } else {
-          canvas.add(clonedObj);
+        // this should solve the unselectability
+        clonedObj.setCoords();
+
+        commandToSave = {
+          action: 'add',
+          objects: clonedObj.getObjects(),
         }
-        canvas.setActiveObject(clonedObj);
-        canvas.requestRenderAll();
-      }, [...Object.keys(utils.defaultCircle), ...Object.keys(utils.defaultPath)]);
-      // canvas.fire('saveState', true);
-      canvas.fire('saveState');
-    }  
+      } else {
+        canvas.add(clonedObj);
+        commandToSave = {
+          action: 'add',
+          objects: [clonedObj],
+        }
+      }
+      canvas.setActiveObject(clonedObj);
+      canvas.requestRenderAll();
+    }, [...Object.keys(utils.defaultCircle), ...Object.keys(utils.defaultPath)]);
+
+    canvas.fire('saveState', commandToSave);
   }
 
   function handleDelete() {
     let canvas = fabRef.current;
     let activeObjects = canvas.getActiveObjects();
-    console.log(activeObjects);
     canvas.discardActiveObject();
     canvas.remove(...activeObjects);
-    // canvas.fire('saveState', true);
-    canvas.fire('saveState');
+    canvas.fire('saveState', {
+      action: 'remove',
+      objects: activeObjects,
+    });
   }
 
   // make sure to use call parameters w/ absolute coordinates
@@ -268,6 +279,7 @@ function App() {
   function handleUndo() {
     let canvas = fabRef.current;
     if (canvas.state.disableUndo) return;
+    canvas.discardActiveObject(); // I don't want to think about this case
 
     let command = canvas.state.undoStack.pop()
     if (!command) return;
@@ -296,8 +308,11 @@ function App() {
 
   function handleRedo() {
     let canvas = fabRef.current;
+    if (canvas.state.disableUndo) return;
+
     let command = canvas.state.redoStack.pop()
     if (!command) return;
+    canvas.discardActiveObject();
 
     switch(command.action) {
       case 'add':
