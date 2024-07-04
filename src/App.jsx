@@ -86,7 +86,13 @@ function App() {
       // 'object:modified': (opt) => {console.log("modified"); console.log(opt)},
       // 'object:added': (opt) => {console.log("added"); console.log(opt)},
       // 'object:removed': (opt) => {console.log("removed"); console.log(opt)},
-      'path:created': (opt) => {opt.path.set(utils.defaultPath)},
+      'path:created': (opt) => {
+        opt.path.set(utils.defaultPath)
+        canvas.fire('saveState', {
+          action: 'add',
+          objects: [opt.path],
+        })
+      },
       'saveState': (command) => { // command: optional. Means you want to save action in undo log
         // opt defaults to {} for no arg
         if (Object.keys(command).length !== 0) {
@@ -125,19 +131,15 @@ function App() {
 
   function handleMode(event, newMode){
     let canvas = fabRef.current;
-    if (canvas.state.disableModeSwitch) return;
-    if (!newMode) {
-      console.log("Unexpected behavior in App.jsx:handleMode");
-      return;
-    }
+    if (canvas.state.disableModeSwitch || !newMode) return;
     canvas.state.mode = newMode;
     utils.resetCanvasState(canvas);
   };
 
   function handleDrawMode(event, newDrawMode) {
     let canvas = fabRef.current;
-    if (canvas.state.disableModeSwitch) return;
-    if (canvas.state.mode!=='draw' || !newDrawMode) {
+    if (canvas.state.disableModeSwitch || !newDrawMode) return;
+    if (canvas.state.mode!=='draw') {
       console.log("Unexpected behavior in App.jsx:handleDrawMode");
       return;
     }

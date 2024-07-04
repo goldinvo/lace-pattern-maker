@@ -111,6 +111,9 @@ export function handleMouseDown(opt, canvas) {
             utils.resetDrawLineState(canvas);
           }
           break;
+        case 'freehand':
+          canvas.state.disableUndo = canvas.state.disableModeSwitch = true;
+          break;
         default:
           break;
       }
@@ -186,6 +189,7 @@ export function handleMouseUp(opt, canvas) {
   canvas.setViewportTransform(canvas.viewportTransform);
   canvas.state.isDragging = false;
   canvas.state.isDeleting = false;
+  canvas.state.disableUndo = false;
   canvas.state.disableModeSwitch = false;
 
   if (canvas.state.isBending) {
