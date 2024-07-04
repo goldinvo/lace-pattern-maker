@@ -15,13 +15,27 @@ import { absoluteToUser } from '../utils.js';
 
 export default function Toolbar(props) {
   const [previousMode, setPreviousMode] = useState(null);
-  let curPosUser = absoluteToUser(props.curPos);
+  useEffect(() => {   
+  
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+  
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  
+  }, [props.stateView, previousMode]);
+  
+if (!props.stateView) return;
+
+  let curPosUser = absoluteToUser(props.stateView.curPos);
   
   function handleKeyDown(e) {
     if (e.key === "Alt") {
-      setPreviousMode(props.mode);
+      setPreviousMode(props.stateView.mode);
       props.handleMode(e,"pan");
-    } else if (e.key === "Backspace" && props.selectionExists) {
+    } else if (e.key === "Backspace" && props.stateView.selectionExists) {
       props.handleDelete();
     }
   }
@@ -32,21 +46,10 @@ export default function Toolbar(props) {
     }
   }
 
-  useEffect(() => {   
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-
-  }, [props.mode, previousMode, props.selectionExists]);
 
   const snapToggle = <FormControlLabel 
-    disabled={props.mode !== "draw" && props.mode !== "select"}
-    control={<Switch checked={props.snap} onChange={props.handleSnap} />}
+    disabled={props.stateView.mode !== "draw" && props.stateView.mode !== "select"}
+    control={<Switch checked={props.stateView.snap} onChange={props.handleSnap} />}
     label="Snap to Grid"
   />;
 
@@ -56,7 +59,7 @@ export default function Toolbar(props) {
     sx={{position: 'fixed', backgroundColor: 'rgba(255, 255, 235, .8)', border: 1, top: 90, right: 20, padding: '10px', borderRadius: '10px',}}
 >
     <ToggleButtonGroup
-      value={props.mode}
+      value={props.stateView.mode}
       exclusive
       onChange={props.handleMode}
       aria-label="mode"
@@ -75,20 +78,19 @@ export default function Toolbar(props) {
       </ToggleButton>
     </ToggleButtonGroup>
 
-    { (props.mode === "select") && <SelectPanel 
+    { (props.stateView.mode === "select") && <SelectPanel 
                                     handleDelete={props.handleDelete} 
-                                    selectionExists={props.selectionExists} 
-                                    clipboard={props.clipboard} 
-                                    metaExists = {props.metaExists}
                                     handleCopy={props.handleCopy} 
                                     handlePaste={props.handlePaste}
                                     snapToggle={snapToggle}
+                                    stateView={props.stateView}
                                     />}
 
-    { (props.mode === "draw") && <DrawPanel 
+    { (props.stateView.mode === "draw") && <DrawPanel 
                                   drawMode={props.drawMode} 
                                   handleDrawMode={props.handleDrawMode}
                                   snapToggle={snapToggle}
+                                  stateView={props.stateView}
                                   />}
 
     

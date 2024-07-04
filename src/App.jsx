@@ -13,7 +13,7 @@ fabric.Group.prototype.hasControls = false;
 function App() {
   const canvasRef = useRef(null);
   const fabRef = useRef(null);
-  
+
   const [stateView, setStateView] = useState(null);
 
   useEffect(() => {
@@ -233,7 +233,7 @@ function App() {
   function handleImport(importJSON) {
   
     let canvas = fabRef.current;
-    canvas.resetCanvasState();
+    utils.resetCanvasState(canvas);
     let state = canvas.state;
     try {
       canvas.loadFromJSON(importJSON);

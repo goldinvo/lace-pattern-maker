@@ -6,7 +6,7 @@ import SvgIcon from '@mui/material/SvgIcon';
 export default function DrawPanel(props) {    
   return (<>
     <ToggleButtonGroup
-      value={props.drawMode}
+      value={props.stateView.drawMode}
       exclusive
       onChange={props.handleDrawMode}
       size="small"
