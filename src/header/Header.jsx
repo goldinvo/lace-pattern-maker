@@ -150,7 +150,7 @@ function Header(props) {
                   <ListItemIcon>
                     <ArrowRightIcon />
                   </ListItemIcon>
-                  <ListItemText primary="In Draw mode, you can plot points, curves, or freehand draw." />
+                  <ListItemText primary="In Draw mode, you can plot points, curves, or freehand draw. Holding shift allows you to draw lines in freehand draw mode." />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
@@ -167,13 +167,13 @@ function Header(props) {
                   <ListItemIcon>
                     <ArrowRightIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Click or click and drag to make a selection. Shift-click to modify the selection." />
+                  <ListItemText primary="Click or click-and-drag to make a selection. Shift-click to modify the selection." />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
                     <ArrowRightIcon />
                   </ListItemIcon>
-                  <ListItemText primary='To paste, you need to have a blue "control point" plotted. Click on an empty spot to plot this control point.' />
+                  <ListItemText primary='To copy and paste, you need to have a blue "control point" plotted. Objects are copy/pasted relative to the control point. Double click to plot a control point.' />
                 </ListItem>
               </List>
             </Box>
@@ -205,10 +205,10 @@ email me at goldin@goldinvo.com.
   - Scroll to zoom in and out
   - Hold Alt or use Pan mode to move the canvas
 2. Working with Objects
-  - In Draw mode, you can plot points, curves, or freehand draw.
+  - In Draw mode, you can plot points, curves, or freehand draw. Holding shift allows you to draw lines in freehand draw mode.
   - Use Erase mode to delete objects, or delete a selection in Select mode.
 3. Using Select Mode
-  - Click or click and drag to make a selection. Shift-click to modify the selection.
-  - To paste, you need to have a blue "control point" plotted. Click on an empty spot to plot this control point.
+  - Click or click-and-drag to make a selection. Shift-click to modify the selection.
+  - To copy and paste, you need to have a blue "control point" plotted. Objects are copy/pasted relative to the control point. Double click to plot a control point.
 
 */
