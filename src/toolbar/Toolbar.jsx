@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react'
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -11,8 +10,6 @@ import SelectPanel from "./SelectPanel.jsx";
 import DrawPanel from "./DrawPanel.jsx"
 import Button from '@mui/material/Button';
 import { absoluteToUser } from '../utils.js';
-import Avatar from '@mui/material/Avatar';
-import CancelIcon from '@mui/icons-material/Cancel';
 import CoordinateChip from "./CoordinateChip.jsx"
 
 
@@ -105,8 +102,8 @@ export default function Toolbar(props) {
 
     {curPosChip}
     {metaChip}
-    <Button disabled={false} variant="contained" onClick={props.handleUndo}>Undo</Button>
-    <Button disabled={false} variant="contained" onClick={props.handleRedo}>Redo</Button>
+    <Button disabled={props.stateView.disableUndo || props.stateView.undoStack.length <= 0} variant="outlined" onClick={props.handleUndo}>Undo</Button>
+    <Button disabled={props.stateView.disableUndo || props.stateView.redoStack.length <= 0} variant="outlined" onClick={props.handleRedo}>Redo</Button>
 
   </Stack>
   )

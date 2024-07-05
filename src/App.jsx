@@ -142,11 +142,19 @@ function App() {
 
   function handleCopy() {
     let canvas = fabRef.current;
-    if (canvas.getActiveObject()) {
-      canvas.getActiveObject().clone(function(cloned) {
-        canvas.state.clipboard = cloned;
-      }, [...Object.keys(utils.defaultCircle), ...Object.keys(utils.defaultPath)]);
+    if (!canvas.state.curMetaPoint || !canvas.state.selectionExists) {
+      console.log('Unexpected behavior in handleCopy()');
+      return;
     }
+
+    canvas.getActiveObject().clone(function(clonedObj) {
+      let metaPoint = canvas.state.curMetaPoint;
+      clonedObj.metaOffsetX = clonedObj.left - metaPoint.aCoords.tl.x;
+      clonedObj.metaOffsetY = clonedObj.top - metaPoint.aCoords.tl.y;
+      canvas.state.clipboard = clonedObj;
+      
+    }, [...Object.keys(utils.defaultCircle), ...Object.keys(utils.defaultPath)]);
+    
     canvas.fire('saveState');
   }
 
@@ -159,8 +167,8 @@ function App() {
     // clone again, so you can do multiple copies.
     canvas.state.clipboard.clone(function(clonedObj) {
       clonedObj.set({
-        left: metaPoint.aCoords.tl.x,
-        top: metaPoint.aCoords.tl.y,
+        left: metaPoint.aCoords.tl.x + clonedObj.metaOffsetX,
+        top: metaPoint.aCoords.tl.y + clonedObj.metaOffsetY,
         evented: true,
       });
       if (clonedObj.type === 'activeSelection') {
@@ -183,9 +191,10 @@ function App() {
           objects: [clonedObj],
         }
       }
+      canvas.bringToFront(metaPoint);
       canvas.setActiveObject(clonedObj);
       canvas.requestRenderAll();
-    }, [...Object.keys(utils.defaultCircle), ...Object.keys(utils.defaultPath)]);
+    }, [...Object.keys(utils.defaultCircle), ...Object.keys(utils.defaultPath), 'metaOffsetX', 'metaOffsetY']);
 
     canvas.fire('saveState', commandToSave);
   }
