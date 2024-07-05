@@ -56,6 +56,32 @@ export function handleScroll(opt, canvas) {
   opt.e.stopPropagation();
 }
 
+export function handleDoubleClick(opt, canvas) {
+  if (canvas.state.mode === 'select') {
+    // delete old meta point
+    if (canvas.state.curMetaPoint) {
+      utils.resetMetaPointState(canvas);
+    }
+
+    // draw meta point
+    let absCoords = opt.absolutePointer;
+    if (canvas.state.snap) absCoords = utils.snapToGrid(absCoords);
+    let metaPoint = new fabric.Circle({
+      ...utils.defaultCircle,
+      left: absCoords.x,
+      top: absCoords.y,
+      radius: constants.DOT_RADIUS * .75,
+      fill: constants.META_COLOR,
+      selectable: false,
+      evented: false,
+    });
+    canvas.add(metaPoint);
+    canvas.bringToFront(metaPoint);
+    canvas.state.curMetaPoint = metaPoint;
+    canvas.fire('saveState');
+  }
+}
+
 export function handleMouseDown(opt, canvas) {
   let commandToSave = null;
   switch(canvas.state.mode) {
@@ -241,31 +267,6 @@ export function handleMouseUp(opt, canvas) {
     canvas.state.disableModeSwitch = false;
   }
 
-  if (canvas.state.mode === 'select') {
-    if (!canvas.state.curMetaPoint) {
-      if (opt.isClick && !opt.target) {
-        // draw meta point
-        let absCoords = opt.absolutePointer;
-        if (canvas.state.snap) absCoords = utils.snapToGrid(absCoords);
-        let metaPoint = new fabric.Circle({
-          ...utils.defaultCircle,
-          left: absCoords.x,
-          top: absCoords.y,
-          radius: constants.DOT_RADIUS * .75,
-          fill: constants.META_COLOR,
-          selectable: false,
-          evented: false,
-        });
-        canvas.add(metaPoint);
-        canvas.bringToFront(metaPoint);
-        canvas.state.curMetaPoint = metaPoint;
-      } else {
-        utils.resetMetaPointState(canvas);
-      }
-    } else if (opt.isClick && !opt.target) {
-      utils.resetMetaPointState(canvas);
-    }
-  }
   canvas.fire('saveState', commandToSave)
 }
 

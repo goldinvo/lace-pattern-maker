@@ -11,6 +11,9 @@ import SelectPanel from "./SelectPanel.jsx";
 import DrawPanel from "./DrawPanel.jsx"
 import Button from '@mui/material/Button';
 import { absoluteToUser } from '../utils.js';
+import Avatar from '@mui/material/Avatar';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CoordinateChip from "./CoordinateChip.jsx"
 
 
 export default function Toolbar(props) {
@@ -28,8 +31,6 @@ export default function Toolbar(props) {
   }, [props.stateView, previousMode]);
   
   if (!props.stateView) return; // Need canvas to mount first so we have fabric state.
-
-  let curPosUser = absoluteToUser(props.stateView.curPos);
   
   function handleKeyDown(e) {
     if (e.key === "Alt") {
@@ -39,19 +40,26 @@ export default function Toolbar(props) {
       props.handleDelete();
     }
   }
-
+  
   function handleKeyUp(e) {
     if (previousMode && e.key === "Alt") {
       props.handleMode(e, previousMode);
       setPreviousMode(null);
     }
   }
-
+  
   const snapToggle = <FormControlLabel 
-    disabled={props.stateView.mode !== "draw" && props.stateView.mode !== "select"}
-    control={<Switch checked={props.stateView.snap} onChange={props.handleSnap} />}
-    label="Snap to Grid"
+  disabled={props.stateView.mode !== "draw" && props.stateView.mode !== "select"}
+  control={<Switch checked={props.stateView.snap} onChange={props.handleSnap} />}
+  label="Snap to Grid"
   />;
+  const curPosChip = <CoordinateChip
+    point={absoluteToUser(props.stateView.curPos)}
+  />;
+  const metaChip = props.stateView.curMetaPoint ? <CoordinateChip 
+    point={absoluteToUser({x: props.stateView.curMetaPoint.left, y: props.stateView.curMetaPoint.top})}
+    onDelete={props.handleRemoveMeta}
+  />: '';
 
   return (
   <Stack 
@@ -95,7 +103,8 @@ export default function Toolbar(props) {
 
     
 
-    <Chip label={'x: ' + curPosUser.x.toFixed(1) + '\ty: ' + curPosUser.y.toFixed(1)}/>
+    {curPosChip}
+    {metaChip}
     <Button disabled={false} variant="contained" onClick={props.handleUndo}>Undo</Button>
     <Button disabled={false} variant="contained" onClick={props.handleRedo}>Redo</Button>
 

@@ -79,6 +79,7 @@ function App() {
       'saveState': (opt) => fabricEvents.handleSaveState(opt, canvas, setStateView),
       'path:created': (opt) => fabricEvents.handlePathCreated(opt, canvas),
       'mouse:wheel': (opt) => fabricEvents.handleScroll(opt, canvas),
+      'mouse:dblclick': (opt) => fabricEvents.handleDoubleClick(opt, canvas),
       'mouse:down': (opt) => fabricEvents.handleMouseDown(opt, canvas),
       'mouse:move': (opt) => fabricEvents.handleMouseMove(opt, canvas),
       'mouse:up': (opt) => fabricEvents.handleMouseUp(opt, canvas),
@@ -130,6 +131,12 @@ function App() {
   function handleSnap(event) {
     let canvas = fabRef.current;
     canvas.state.snap = event.target.checked;
+    canvas.fire('saveState');
+  }
+
+  function handleRemoveMeta() {
+    let canvas = fabRef.current;
+    utils.resetMetaPointState(canvas);
     canvas.fire('saveState');
   }
 
@@ -341,6 +348,7 @@ function App() {
     handleMode,
     handleDrawMode,
     handleSnap,
+    handleRemoveMeta,
     handleCopy, handlePaste,
     handleDelete,
     handleUndo, handleRedo
