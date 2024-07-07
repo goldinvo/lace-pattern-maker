@@ -3,7 +3,7 @@ import Chip from '@mui/material/Chip';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { Box, Typography } from '@mui/material';
 
-function CoordinateChip({ point, onDelete }) {
+function CoordinateChip({ point, onDelete, color }) {
   return (
     <Chip
       label={
@@ -19,7 +19,7 @@ function CoordinateChip({ point, onDelete }) {
       }
       onDelete={onDelete}
       deleteIcon={<CancelIcon />}
-      sx={{ mr: 1 }}
+      sx={{ mr: 1, border: `2px solid ${color}`}}
     />
   );
 }

@@ -18,6 +18,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import Tooltip from '@mui/material/Tooltip'
 
 
 function Header(props) {
@@ -81,15 +82,21 @@ function Header(props) {
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-          <Button color="inherit" onClick={() => handleSave()}>
-            Save
-          </Button>
-          <Button color="inherit" onClick={() => handleLoad()}>
-            Load
-          </Button>
-          <Button color="inherit" onClick={() => setExportImportOpen(true)}>
-            Export/Import
-          </Button>
+          <Tooltip title="Save current canvas to local storage. Overwrites previous saves.">
+            <Button color="inherit" onClick={() => handleSave()}>
+              Save
+            </Button>
+          </Tooltip>
+          <Tooltip title="Load last save from local storage">
+            <Button color="inherit" onClick={() => handleLoad()}>
+              Load
+            </Button>
+          </Tooltip>
+          <Tooltip title="Get canvas in text (JSON) format">
+            <Button color="inherit" onClick={() => setExportImportOpen(true)}>
+              Export/Import
+            </Button>
+          </Tooltip>
           <Button color="inherit" onClick={() => setPrintOpen(true)}>
             Print
           </Button>
