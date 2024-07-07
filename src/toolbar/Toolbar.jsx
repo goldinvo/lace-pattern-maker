@@ -13,6 +13,9 @@ import { absoluteToUser } from '../utils.js';
 import CoordinateChip from "./CoordinateChip.jsx";
 import Tooltip from "@mui/material/Tooltip";
 import ButtonGroup from "@mui/material/ButtonGroup"
+import UndoOutlinedIcon from '@mui/icons-material/UndoOutlined';
+import RedoOutlinedIcon from '@mui/icons-material/RedoOutlined';
+import { META_COLOR } from '../constants.js';
 
 
 export default function Toolbar(props) {
@@ -63,13 +66,13 @@ export default function Toolbar(props) {
   const metaChip = props.stateView.curMetaPoint ? <CoordinateChip 
     point={absoluteToUser({x: props.stateView.curMetaPoint.left, y: props.stateView.curMetaPoint.top})}
     onDelete={props.handleRemoveMeta}
-    color='blue'
+    color={META_COLOR}
   />: '';
 
   return (
   <Stack 
     spacing={1}
-    sx={{position: 'fixed', backgroundColor: 'rgba(255, 255, 235, .8)', border: 1, top: 90, right: 20, padding: '10px', borderRadius: '10px',}}
+    sx={{position: 'fixed', alignItems: 'center', backgroundColor: 'rgba(255, 255, 235, .8)', border: 1, top: 90, right: 20, padding: '10px', borderRadius: '10px',}}
 >
     <ToggleButtonGroup
       value={props.stateView.mode}
@@ -116,8 +119,8 @@ export default function Toolbar(props) {
     
 
     <ButtonGroup variant='outlined' fullWidth>
-      <Button disabled={props.stateView.disableUndo || props.stateView.undoStack.length <= 0} onClick={props.handleUndo}>Undo</Button>
-      <Button disabled={props.stateView.disableUndo || props.stateView.redoStack.length <= 0} onClick={props.handleRedo}>Redo</Button>
+      <Button disabled={props.stateView.disableUndo || props.stateView.undoStack.length <= 0} onClick={props.handleUndo}><UndoOutlinedIcon/></Button>
+      <Button disabled={props.stateView.disableUndo || props.stateView.redoStack.length <= 0} onClick={props.handleRedo}><RedoOutlinedIcon/></Button>
     </ButtonGroup>
     {(props.stateView.mode === 'draw' || props.stateView.mode === 'select') && snapToggle}
     {curPosChip}

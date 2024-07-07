@@ -19,7 +19,7 @@ function CoordinateChip({ point, onDelete, color }) {
       }
       onDelete={onDelete}
       deleteIcon={<CancelIcon />}
-      sx={{ mr: 1, border: `2px solid ${color}`}}
+      sx={{border: `2px solid ${color}`}}
     />
   );
 }
