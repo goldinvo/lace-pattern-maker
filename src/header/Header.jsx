@@ -31,14 +31,12 @@ function Header(props) {
 
   function handleSave() {
     localStorage.setItem('canvas', props.getExportJSON());
-    console.log(props.getExportJSON());
     setSnackbarMessage('Canvas Saved');
     setSnackbarOpen(true);
   }
 
   function handleLoad() {
     let json = localStorage.getItem('canvas');
-    console.log(json);
     if (!json) alert('No data found in local storage');
     props.handleImport(json);
     setSnackbarMessage('Last Save Loaded');
