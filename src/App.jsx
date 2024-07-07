@@ -252,7 +252,9 @@ function App() {
     utils.resetCanvasState(canvas);
 
     canvas.remove(canvas.state.bg);
-    let exportJSON = JSON.stringify(canvas.toJSON(), null, 2);
+    let exportJSON = JSON.stringify(canvas.toJSON(
+      [...Object.keys(utils.defaultCircle), ...Object.keys(utils.defaultPath)],
+    ), null, 2);
     canvas.add(canvas.state.bg);
     canvas.sendToBack(canvas.state.bg);
 
