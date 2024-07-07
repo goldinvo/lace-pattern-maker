@@ -210,6 +210,32 @@ function App() {
     });
   }
 
+  // Handle a rotation of 90 degrees
+  function handleRotate() {
+    let canvas = fabRef.current;
+    let activeObject = canvas.getActiveObject();
+    if (!activeObject || !canvas.state.curMetaPoint) {
+      console.log("Unexpected behavior in handleRotate()");
+      return;
+    }
+
+    let newCoords = fabric.util.rotatePoint(
+      new fabric.Point(activeObject.left, activeObject.top), // point to rotate
+      canvas.state.curMetaPoint.getCenterPoint(), // rotation origin
+      fabric.util.degreesToRadians(90), // angle
+    )
+
+    activeObject
+      .set({left: newCoords.x, top: newCoords.y, angle: activeObject.get("angle") + 90})
+      .setCoords();
+
+    canvas.fire('saveState', {
+      action: 'rotate',
+      origin: canvas.state.curMetaPoint.getCenterPoint(),
+      objects: canvas.getActiveObjects(),
+    });
+  }
+
   // make sure to use call parameters w/ absolute coordinates
   function handlePrint(x, y, width, height, scale) {
     let canvas = fabRef.current;
@@ -302,6 +328,17 @@ function App() {
           obj.setCoords();
         });
         break;
+      case 'rotate':
+        command.objects.map((obj) => {
+          let newCoords = fabric.util.rotatePoint(
+            new fabric.Point(obj.left, obj.top), // point to rotate
+            command.origin, // rotation origin
+            fabric.util.degreesToRadians(-90), // angle
+          );
+          obj.set({left: newCoords.x, top: newCoords.y, angle: obj.get("angle") - 90})
+          obj.setCoords();
+        });
+        break;
       default:
         console.log("Unexpected behavior in handleUndo()");
     }
@@ -339,6 +376,17 @@ function App() {
           obj.setCoords();
         });
         break;
+      case 'rotate':
+        command.objects.map((obj) => {
+          let newCoords = fabric.util.rotatePoint(
+            new fabric.Point(obj.left, obj.top), // point to rotate
+            command.origin, // rotation origin
+            fabric.util.degreesToRadians(90), // angle
+          );
+          obj.set({left: newCoords.x, top: newCoords.y, angle: obj.get("angle") + 90})
+          obj.setCoords();
+        });
+        break;
       default:
         console.log("Unexpected behavior in handleRedo()");
     }
@@ -361,7 +409,7 @@ function App() {
     handleSnap,
     handleRemoveMeta,
     handleCopy, handlePaste,
-    handleDelete,
+    handleDelete, handleRotate,
     handleUndo, handleRedo
   }
 

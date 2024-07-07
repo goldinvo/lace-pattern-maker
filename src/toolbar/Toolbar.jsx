@@ -12,6 +12,7 @@ import Button from '@mui/material/Button';
 import { absoluteToUser } from '../utils.js';
 import CoordinateChip from "./CoordinateChip.jsx";
 import Tooltip from "@mui/material/Tooltip";
+import ButtonGroup from "@mui/material/ButtonGroup"
 
 
 export default function Toolbar(props) {
@@ -31,12 +32,17 @@ export default function Toolbar(props) {
   if (!props.stateView) return; // Need canvas to mount first so we have fabric state.
   
   function handleKeyDown(e) {
-    if (e.key === "Alt") {
+    if (e.key === "Alt" && !props.stateView.disableModeSwitch) {
       setPreviousMode(props.stateView.mode);
       props.handleMode(e,"pan");
     } else if (e.key === "Backspace" && props.stateView.selectionExists) {
       props.handleDelete();
+      e.preventDefault();
+    } else if ((e.ctrlKey || e.metaKey) && e.key === "z" && !props.stateView.disableUndo) {
+      e.shiftKey ? props.handleRedo() : props.handleUndo();
+      e.preventDefault();
     }
+
   }
   
   function handleKeyUp(e) {
@@ -96,24 +102,26 @@ export default function Toolbar(props) {
     { (props.stateView.mode === "select") && <SelectPanel 
                                     stateView={props.stateView}
                                     handleDelete={props.handleDelete} 
+                                    handleRotate={props.handleRotate}
                                     handleCopy={props.handleCopy} 
                                     handlePaste={props.handlePaste}
-                                    snapToggle={snapToggle}
                                     />}
 
     { (props.stateView.mode === "draw") && <DrawPanel 
                                   stateView={props.stateView}
                                   drawMode={props.drawMode} 
                                   handleDrawMode={props.handleDrawMode}
-                                  snapToggle={snapToggle}
                                   />}
 
     
 
+    <ButtonGroup variant='outlined' fullWidth>
+      <Button disabled={props.stateView.disableUndo || props.stateView.undoStack.length <= 0} onClick={props.handleUndo}>Undo</Button>
+      <Button disabled={props.stateView.disableUndo || props.stateView.redoStack.length <= 0} onClick={props.handleRedo}>Redo</Button>
+    </ButtonGroup>
+    {(props.stateView.mode === 'draw' || props.stateView.mode === 'select') && snapToggle}
     {curPosChip}
     {metaChip}
-    <Button disabled={props.stateView.disableUndo || props.stateView.undoStack.length <= 0} variant="outlined" onClick={props.handleUndo}>Undo</Button>
-    <Button disabled={props.stateView.disableUndo || props.stateView.redoStack.length <= 0} variant="outlined" onClick={props.handleRedo}>Redo</Button>
 
   </Stack>
   )

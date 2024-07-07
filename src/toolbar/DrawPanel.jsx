@@ -10,6 +10,7 @@ export default function DrawPanel(props) {
       exclusive
       onChange={props.handleDrawMode}
       size="small"
+      fullWidth
     >
       <Tooltip title="Point">
         <ToggleButton value="point">
@@ -27,6 +28,5 @@ export default function DrawPanel(props) {
         </ToggleButton>
       </Tooltip>
     </ToggleButtonGroup>
-    {props.snapToggle}
   </>);
 }

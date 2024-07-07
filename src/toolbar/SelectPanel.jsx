@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
 
 export default function SelectPanel(props) {
   const [copyText, setCopyText] = useState('Copy');
@@ -19,26 +20,29 @@ export default function SelectPanel(props) {
 
   return (
     <>
-      <Button 
-        disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint} 
-        variant="outlined" 
-        onClick={handleCopy}
-      >
-        {copyText}
-      </Button>
-      <Button 
-        disabled={!props.stateView.clipboard || !props.stateView.curMetaPoint} 
-        variant="outlined" 
-        onClick={handlePaste}
-      >
-        {pasteText}
-      </Button>
-      {props.stateView.selectionExists && (
-        <Button variant="outlined" onClick={props.handleDelete}>
+      <ButtonGroup variant="outlined" fullWidth>
+        <Button 
+          disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint} 
+          onClick={handleCopy}
+        >
+          {copyText}
+        </Button>
+        <Button 
+          disabled={!props.stateView.clipboard || !props.stateView.curMetaPoint} 
+          onClick={handlePaste}
+        >
+          {pasteText}
+        </Button>
+      </ButtonGroup>
+
+      <ButtonGroup variant="outlined" fullWidth> 
+        <Button onClick={props.handleDelete} disabled={!props.stateView.selectionExists}>
           Delete
         </Button>
-      )}
-      {props.snapToggle}
+        <Button onClick={props.handleRotate} disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint}>
+          Rotate
+        </Button>
+      </ButtonGroup>
     </>
   );
 }
