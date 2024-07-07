@@ -25,6 +25,18 @@ function Header(props) {
   const [exportImportOpen, setExportImportOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
 
+  function handleSave() {
+    localStorage.setItem("canvas", props.getExportJSON());
+    console.log(props.getExportJSON())
+  }
+
+  function handleLoad() {
+    let json = localStorage.getItem("canvas");
+    console.log(json);
+    if (!json) alert('No data found in local storage');
+    props.handleImport(json);
+  }
+
   return (
     <AppBar position="sticky" sx={{ bgcolor: 'secondary.main', boxShadow: 1, px: { xs: 2, sm: 3 } }}>
       <Toolbar
@@ -68,7 +80,13 @@ function Header(props) {
             lace-pattern-tool
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+          <Button color="inherit" onClick={() => handleSave()}>
+            Save
+          </Button>
+          <Button color="inherit" onClick={() => handleLoad()}>
+            Load
+          </Button>
           <Button color="inherit" onClick={() => setExportImportOpen(true)}>
             Export/Import
           </Button>
