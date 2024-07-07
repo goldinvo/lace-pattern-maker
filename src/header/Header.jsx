@@ -18,24 +18,38 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import Tooltip from '@mui/material/Tooltip'
-
+import Tooltip from '@mui/material/Tooltip';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 function Header(props) {
   const [printOpen, setPrintOpen] = useState(false);
   const [exportImportOpen, setExportImportOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   function handleSave() {
-    localStorage.setItem("canvas", props.getExportJSON());
-    console.log(props.getExportJSON())
+    localStorage.setItem('canvas', props.getExportJSON());
+    console.log(props.getExportJSON());
+    setSnackbarMessage('Canvas Saved');
+    setSnackbarOpen(true);
   }
 
   function handleLoad() {
-    let json = localStorage.getItem("canvas");
+    let json = localStorage.getItem('canvas');
     console.log(json);
     if (!json) alert('No data found in local storage');
     props.handleImport(json);
+    setSnackbarMessage('Last Save Loaded');
+    setSnackbarOpen(true);
+  }
+
+  function handleSnackbarClose(event, reason) {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
   }
 
   return (
@@ -106,7 +120,7 @@ function Header(props) {
         </Box>
         <ExportImportDialog
           open={exportImportOpen}
-          handleClose={() => { setExportImportOpen(false) }}
+          handleClose={() => { setExportImportOpen(false); }}
           handleImport={props.handleImport}
           getExportJSON={props.getExportJSON}
         />
@@ -210,6 +224,16 @@ function Header(props) {
           </DialogActions>
         </Dialog>
       </Toolbar>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={5000}
+        onClose={handleSnackbarClose}
+        anchorOrigin= {{vertical: 'bottom', horizontal: 'right'}}
+      >
+        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </AppBar>
   );
 }
