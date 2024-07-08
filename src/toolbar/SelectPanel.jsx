@@ -11,8 +11,16 @@ import FlipOutlinedIcon from '@mui/icons-material/FlipOutlined';
 
 
 export default function SelectPanel(props) {
+  const [isCutClicked, setIsCutClicked] = useState(false);
   const [isCopyClicked, setIsCopyClicked] = useState(false);
   const [isPasteClicked, setIsPasteClicked] = useState(false);
+  
+  const handleCut = () => {
+    props.handleCopy()
+    props.handleDelete();
+    setIsCutClicked(true);
+    setTimeout(() => setIsCutClicked(false), 1000);
+  }
 
   const handleCopy = () => {
     props.handleCopy();
@@ -26,12 +34,16 @@ export default function SelectPanel(props) {
     setTimeout(() => setIsPasteClicked(false), 1000);
   };
 
+
   return (
     <>
       <ButtonGroup variant="outlined" fullWidth>
         
-        <Button>
-          <ContentCutOutlinedIcon/>
+        <Button 
+          disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint} 
+          onClick={handleCut}
+        >
+          {isCutClicked ? <CheckOutlinedIcon/> : <ContentCutOutlinedIcon/>}
         </Button>
         <Button 
           disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint} 
