@@ -65,7 +65,9 @@ function App() {
 
     // Attach background grid
     let bg = new utils.infBGrid();
-    canvas.state.bg = bg; 
+    canvas.state.bg = bg;
+    bg.evented = bg.selectable = false;
+    bg.excludeFromExport = true;
     canvas.add(bg);
 
     // Attach brush
@@ -236,6 +238,10 @@ function App() {
     });
   }
 
+  function handleReflect() {
+
+  }
+
   // make sure to use call parameters w/ absolute coordinates
   function handlePrint(x, y, width, height, scale) {
     let canvas = fabRef.current;
@@ -277,12 +283,9 @@ function App() {
     let canvas = fabRef.current;
     utils.resetCanvasState(canvas);
 
-    canvas.remove(canvas.state.bg);
     let exportJSON = JSON.stringify(canvas.toJSON(
       [...Object.keys(utils.defaultCircle), ...Object.keys(utils.defaultPath)],
     ), null, 2);
-    canvas.add(canvas.state.bg);
-    canvas.sendToBack(canvas.state.bg);
 
     return exportJSON;
   }
