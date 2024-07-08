@@ -1,4 +1,8 @@
 // Modified source code for fabric.js PencilBrush class
+//  - While drawing, render a filled selection
+//  - Removed path smoothing (lineTo; drawing a polygon)
+//  - Styled to look like box selection
+//  - Final path not added to canvas at the end
 
 import { fabric } from 'fabric'
 
@@ -11,7 +15,7 @@ export const LassoBrush = fabric.util.createClass(fabric.BaseBrush, {
      * Discard points that are less than `decimate` pixel distant from each other
      * @type Number
      */
-    decimate: 0.4,
+    decimate: 20,
 
     /**
      * Constructor
@@ -182,10 +186,9 @@ export const LassoBrush = fabric.util.createClass(fabric.BaseBrush, {
         for (i = 1; i < len; i++) {
             if (!p1.eq(p2)) {
                 var midPoint = p1.midPointFrom(p2);
-                // p1 is our bezier control point
                 // midpoint is our endpoint
                 // start point is p(i-1) value.
-                path.push(['Q', p1.x, p1.y, midPoint.x, midPoint.y]);
+                path.push(['L', midPoint.x, midPoint.y]);
             }
             p1 = points[i];
             if ((i + 1) < points.length) {
@@ -206,7 +209,7 @@ export const LassoBrush = fabric.util.createClass(fabric.BaseBrush, {
      */
     _isEmptySVGPath: function (pathData) {
         var pathString = fabric.util.joinPath(pathData);
-        return pathString === 'M 0 0 Q 0 0 0 0 L 0 0';
+        return pathString === 'M 0 0 L 0 0 L 0 0'; // I don't know what this is
     },
     /**
      * Creates fabric.Path object to add on canvas
@@ -215,7 +218,7 @@ export const LassoBrush = fabric.util.createClass(fabric.BaseBrush, {
      */
     createPath: function (pathData) {
         var path = new fabric.Path(pathData, {
-            fill: null,
+            fill: this.fillColor,
             stroke: this.color,
             strokeWidth: this.width,
             strokeLineCap: this.strokeLineCap,
@@ -273,13 +276,12 @@ export const LassoBrush = fabric.util.createClass(fabric.BaseBrush, {
             this.canvas.requestRenderAll();
             return;
         }
-        var path = this.createPath(pathData);
-        this.canvas.clearContext(this.canvas.contextTop);
         this.canvas.fire('before:path:created', { path: path });
-        this.canvas.add(path);
-        this.canvas.requestRenderAll();
+        this.canvas.clearContext(this.canvas.contextTop);
+        var path = this.createPath(pathData);
         path.setCoords();
         this._resetShadow();
+        
         // fire event 'path' created
         this.canvas.fire('path:created', { path: path });
     }
