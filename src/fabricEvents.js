@@ -1,5 +1,7 @@
+import { getScopedCssBaselineUtilityClass } from '@mui/material';
 import * as constants from './constants.js'
 import * as utils from './utils.js'
+import { FileCopy } from '@mui/icons-material';
 
 // opt (command): provide command object {action: ..., } to save to undo history
 export function handleSaveState(command, canvas, setStateView) {
@@ -33,16 +35,20 @@ export function handleObjectModified(opt, canvas) {
     return;
   }
   canvas.state.disableModeSwitch = canvas.state.disableUndo = false; // already set by mouseUp but just to be sure
-  
+
+  let transform = fabric.util.composeMatrix({
+    translateX: opt.transform.target.left - opt.transform.original.left, 
+    translateY: opt.transform.target.top - opt.transform.original.top,
+  });
+
   let objects = opt.target.type === 'activeSelection'
                 ? opt.target.getObjects()
                 : [opt.target];
 
   canvas.fire('saveState', {
-    action: 'drag',
-    objects: objects,
-    dX: opt.transform.target.left - opt.transform.original.left,
-    dY: opt.transform.target.top - opt.transform.original.top,
+    action: 'transform',
+    objects,
+    transform,
   })
 }
 

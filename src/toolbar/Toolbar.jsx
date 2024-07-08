@@ -112,6 +112,7 @@ export default function Toolbar(props) {
                                     handleRotate={props.handleRotate}
                                     handleCopy={props.handleCopy} 
                                     handlePaste={props.handlePaste}
+                                    handleReflect={props.handleReflect}
                                     />}
 
     { (props.stateView.mode === "draw") && <DrawPanel 

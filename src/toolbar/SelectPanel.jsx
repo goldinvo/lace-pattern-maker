@@ -63,10 +63,10 @@ export default function SelectPanel(props) {
         <Button onClick={props.handleRotate} disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint}>
           <Rotate90DegreesCwOutlinedIcon/>
         </Button>
-        <Button onClick={props.handleRotate} disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint}>
+        <Button onClick={() => props.handleReflect({vertical: true})} disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint}>
           <FlipOutlinedIcon/>
         </Button>
-        <Button onClick={props.handleRotate} disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint}>
+        <Button onClick={() => props.handleReflect({horizontal: true})} disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint}>
           <FlipOutlinedIcon sx={{transform: 'rotate(90deg);'}}/>
         </Button>
       </ButtonGroup>

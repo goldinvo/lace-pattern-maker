@@ -212,7 +212,7 @@ function App() {
     });
   }
 
-  // Handle a rotation of 90 degrees
+  // Handle a rotation of 90 degrees (TODO: allow rotation by arbitrary degree?)
   function handleRotate() {
     let canvas = fabRef.current;
     let activeObject = canvas.getActiveObject();
@@ -221,25 +221,56 @@ function App() {
       return;
     }
 
-    let newCoords = fabric.util.rotatePoint(
-      new fabric.Point(activeObject.left, activeObject.top), // point to rotate
-      canvas.state.curMetaPoint.getCenterPoint(), // rotation origin
-      fabric.util.degreesToRadians(90), // angle
-    )
-
-    activeObject
-      .set({left: newCoords.x, top: newCoords.y, angle: activeObject.get("angle") + 90})
-      .setCoords();
+    // Rotation around curMetaPoint
+    const theta = fabric.util.degreesToRadians(90);
+    const cos = fabric.util.cos;
+    const sin = fabric.util.sin;
+    const {x, y} = canvas.state.curMetaPoint.getCenterPoint()
+    const transform = [cos(theta), sin(theta), -sin(theta), cos(theta), -x*cos(theta)+y*sin(theta)+x, -x*sin(theta)-y*cos(theta)+y];
+    // i am happier than a clam 
+    
+    fabric.util.addTransformToObject(activeObject, transform);
 
     canvas.fire('saveState', {
-      action: 'rotate',
-      origin: canvas.state.curMetaPoint.getCenterPoint(),
+      action: 'transform',
       objects: canvas.getActiveObjects(),
+      transform,
     });
   }
 
-  function handleReflect() {
+  // TODO: either allow reflection across arbitrary line or simplify function
+  function handleReflect(opt) {
+    let canvas = fabRef.current;
+    let activeObject = canvas.getActiveObject();
+    if (!activeObject || !canvas.state.curMetaPoint) {
+      console.log("Unexpected behavior in handleReflect()");
+      return;
+    }
+    
+    // reflect across an arbitrary line ax+by+c = 0
+    let a, b, c;
+    if (opt.horizontal) {
+      a = 0;
+      b = 1;
+      c = -canvas.state.curMetaPoint.getCenterPoint().y;
+    } else if (opt.vertical) {
+      a = 1;
+      b = 0;
+      c = -canvas.state.curMetaPoint.getCenterPoint().x;
+    } else {
+      console.log("Unhandled case in handleReflect()")
+    }
+    const transform = [
+      (b**2 - a**2)/(a**2+b**2), (-2*a*b)/(a**2+b**2), (-2*a*b)/(a**2+b**2), (a**2 - b**2)/(a**2+b**2), (-2*a*c)/(a**2+b**2), (-2*b*c)/(a**2+b**2)
+    ];
 
+    fabric.util.addTransformToObject(activeObject, transform);
+
+    canvas.fire('saveState', {
+      action: 'transform',
+      objects: canvas.getActiveObjects(),
+      transform,
+    });
   }
 
   // make sure to use call parameters w/ absolute coordinates
@@ -324,22 +355,9 @@ function App() {
         canvas.remove(...command.newObjects);
         canvas.add(...command.oldObjects);
         break;
-      case 'drag':
+      case 'transform':
         command.objects.map((obj) => {
-          obj.left -= command.dX;
-          obj.top -= command.dY;
-          obj.setCoords();
-        });
-        break;
-      case 'rotate':
-        command.objects.map((obj) => {
-          let newCoords = fabric.util.rotatePoint(
-            new fabric.Point(obj.left, obj.top), // point to rotate
-            command.origin, // rotation origin
-            fabric.util.degreesToRadians(-90), // angle
-          );
-          obj.set({left: newCoords.x, top: newCoords.y, angle: obj.get("angle") - 90})
-          obj.setCoords();
+          fabric.util.removeTransformFromObject(obj, command.transform);
         });
         break;
       default:
@@ -372,22 +390,9 @@ function App() {
         canvas.remove(...command.oldObjects);
         canvas.add(...command.newObjects);
         break;
-      case 'drag':
+      case 'transform':
         command.objects.map((obj) => {
-          obj.left += command.dX;
-          obj.top += command.dY;
-          obj.setCoords();
-        });
-        break;
-      case 'rotate':
-        command.objects.map((obj) => {
-          let newCoords = fabric.util.rotatePoint(
-            new fabric.Point(obj.left, obj.top), // point to rotate
-            command.origin, // rotation origin
-            fabric.util.degreesToRadians(90), // angle
-          );
-          obj.set({left: newCoords.x, top: newCoords.y, angle: obj.get("angle") + 90})
-          obj.setCoords();
+          fabric.util.addTransformToObject(obj, command.transform);
         });
         break;
       default:
@@ -412,7 +417,7 @@ function App() {
     handleSnap,
     handleRemoveMeta,
     handleCopy, handlePaste,
-    handleDelete, handleRotate,
+    handleDelete, handleRotate, handleReflect,
     handleUndo, handleRedo
   }
 
