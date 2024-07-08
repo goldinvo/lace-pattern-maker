@@ -36,9 +36,27 @@ export function handleObjectModified(opt, canvas) {
   }
   canvas.state.disableModeSwitch = canvas.state.disableUndo = false; // already set by mouseUp but just to be sure
 
+  let initialCoords = {x: opt.transform.original.left, y: opt.transform.original.top};
+  let finalCoords = {x: opt.transform.target.left, y: opt.transform.target.top};
+  // Drag and drop snap to grid
+  if (canvas.state.snap) {
+    // calculate offset, then apply after snap  (active selection TL will be off grid)
+    let {x: snapX, y: snapY} = utils.snapToGrid(initialCoords);
+    let gridOffsetX = initialCoords.x - snapX;
+    let gridOffsetY = initialCoords.y - snapY;
+   
+    finalCoords = utils.snapToGrid(finalCoords);
+    finalCoords.x += gridOffsetX;
+    finalCoords.y += gridOffsetY;
+
+    opt.transform.target.left = finalCoords.x;
+    opt.transform.target.top = finalCoords.y;
+    opt.transform.target.setCoords();
+  }
+
   let transform = fabric.util.composeMatrix({
-    translateX: opt.transform.target.left - opt.transform.original.left, 
-    translateY: opt.transform.target.top - opt.transform.original.top,
+    translateX: finalCoords.x - initialCoords.x, 
+    translateY: finalCoords.y - initialCoords.y,
   });
 
   let objects = opt.target.type === 'activeSelection'
