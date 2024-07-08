@@ -7,6 +7,7 @@ import ContentCutOutlinedIcon from '@mui/icons-material/ContentCutOutlined';
 import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import Rotate90DegreesCwOutlinedIcon from '@mui/icons-material/Rotate90DegreesCwOutlined';
+import FlipOutlinedIcon from '@mui/icons-material/FlipOutlined';
 
 
 export default function SelectPanel(props) {
@@ -28,6 +29,10 @@ export default function SelectPanel(props) {
   return (
     <>
       <ButtonGroup variant="outlined" fullWidth>
+        
+        <Button>
+          <ContentCutOutlinedIcon/>
+        </Button>
         <Button 
           disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint} 
           onClick={handleCopy}
@@ -43,13 +48,19 @@ export default function SelectPanel(props) {
       </ButtonGroup>
 
       <ButtonGroup variant="outlined" fullWidth> 
-        <Button onClick={props.handleDelete} disabled={!props.stateView.selectionExists}>
-          <DeleteOutlinedIcon/>
-        </Button>
         <Button onClick={props.handleRotate} disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint}>
           <Rotate90DegreesCwOutlinedIcon/>
         </Button>
+        <Button onClick={props.handleRotate} disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint}>
+          <FlipOutlinedIcon/>
+        </Button>
+        <Button onClick={props.handleRotate} disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint}>
+          <FlipOutlinedIcon sx={{transform: 'rotate(90deg);'}}/>
+        </Button>
       </ButtonGroup>
+      <Button variant="outlined" fullWidth onClick={props.handleDelete} disabled={!props.stateView.selectionExists}>
+        <DeleteOutlinedIcon/>
+      </Button>
     </>
   );
 }
