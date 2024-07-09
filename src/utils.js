@@ -1,5 +1,6 @@
 import * as constants from './constants.js'
 import {fabric} from 'fabric'
+import FixedStack from './FixedStack.js'
 
 export const defaultCircle = {
   originX: 'center',
@@ -66,7 +67,7 @@ export function resetDrawLineState(canvas) {
 // Call on all mode changes, including draw mode!!
 // curPos not updating is expected behavior
 // what about existSelection? guessing discardActiveObject takes care of that
-export function resetCanvasState(canvas) {
+export function resetCanvasState(canvas, hard) {
   // Reset selection 
   canvas.discardActiveObject();
 
@@ -114,6 +115,11 @@ export function resetCanvasState(canvas) {
       fabric.Object.prototype.selectable = false;
       canvas.isDrawingMode = false;
       break;
+  }
+
+  if (hard) {
+    canvas.state.undoStack = new FixedStack(constants.MAX_HISTORY_LENGTH);
+    canvas.state.redoStack = new FixedStack(constants.MAX_HISTORY_LENGTH);
   }
 
   canvas.fire('saveState');

@@ -339,26 +339,47 @@ function App() {
     let canvas = fabRef.current;
     utils.resetCanvasState(canvas);
 
-    let exportJSON = JSON.stringify(canvas.toJSON(
-      [...Object.keys(utils.defaultCircle), ...Object.keys(utils.defaultPath)],
-    ), null, 2);
-
-    return exportJSON;
+    let ret = JSON.stringify({
+      objects: canvas.getObjects()
+                    .filter((obj) => obj.type === 'circle' || obj.type === 'path')
+                    .map((obj) => {
+                      if (obj.type === 'circle') {
+                        return { type: 'circle', top: obj.top, left: obj.left }
+                      } else {
+                        return { type: 'path', path: obj.path}
+                      }
+                    })
+    });
+  
+    return ret;
   }
 
   function handleImport(importJSON) {
   
     let canvas = fabRef.current;
-    utils.resetCanvasState(canvas);
-    let state = canvas.state;
+    utils.resetCanvasState(canvas, true);
+
+    let parsed;
     try {
-      canvas.loadFromJSON(importJSON);
+      parsed = JSON.parse(importJSON);
+      canvas.remove(...canvas.getObjects());
+      canvas.add(canvas.state.bg);
+      for (const obj of parsed.objects) {
+        if (obj.type === 'circle') {
+          canvas.add(new fabric.Circle({
+            ...utils.defaultCircle,
+            left: obj.left,
+            top: obj.top,
+          }));
+        } else if (obj.type==='path') {
+          canvas.add(new fabric.Path(obj.path, utils.defaultPath));
+        } else {
+          throw new Error('e');
+        }
+      }
     } catch (error) {
-      alert('Invalid JSON format. Please correct and try again.');
+      alert('Invalid JSON data.');
     }
-    canvas.state = state;
-    canvas.add(canvas.state.bg);
-    canvas.sendToBack(canvas.state.bg);
   }
   
   function handleUndo() {
