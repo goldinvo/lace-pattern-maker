@@ -346,7 +346,7 @@ function App() {
                       if (obj.type === 'circle') {
                         return { type: 'circle', top: obj.top, left: obj.left }
                       } else {
-                        return { type: 'path', path: obj.path}
+                        return { type: 'path', path: obj.path, top: obj.top, left: obj.left}
                       }
                     })
     });
@@ -372,7 +372,11 @@ function App() {
             top: obj.top,
           }));
         } else if (obj.type==='path') {
-          canvas.add(new fabric.Path(obj.path, utils.defaultPath));
+          canvas.add(new fabric.Path(obj.path, {
+            ...utils.defaultPath,
+            left: obj.left,
+            top: obj.top,
+          }));
         } else {
           throw new Error('e');
         }
