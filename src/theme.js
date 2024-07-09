@@ -13,6 +13,15 @@ const theme = createTheme({
       main: '#ffd700',
     },
   },
+  components: {
+    MuiTooltip: {
+      defaultProps: {
+        slotProps: {popper: {modifiers: [{name:'offset',options:{offset:[0, -14]}}]}}, // im in pain
+        disableInteractive: true,
+        enterDelay: 1000,
+      },
+    },
+  },
 });
 
 export default theme;
