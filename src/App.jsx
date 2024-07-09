@@ -6,6 +6,7 @@ import * as fabricEvents from './fabricEvents.js'
 import * as constants from './constants.js'
 import * as utils from './utils.js'
 import FixedStack from './FixedStack.js'
+import LassoBrush from './LassoBrush.js'
 
 // Change defaults
 fabric.Group.prototype.hasControls = false;
@@ -37,6 +38,7 @@ function App() {
         mode: 'select',     // 'select' | 'pan' | 'draw' | 'delete'
         drawMode: 'point',  // 'point' | 'line' | 'freehand'
         snap: true,
+        lasso: true,
 
         curPos: {x: 0, y: 0}, // TODO(?) curPos may be updated too frequently but I think it is ok for now
         undoStack: new FixedStack(constants.MAX_HISTORY_LENGTH),
@@ -59,6 +61,8 @@ function App() {
         lastPosX: null,
         lastPosY: null,
         bg: null,
+        pencilBrush: null,
+        lassoBrush: null,
       },
     });
     let canvas = fabRef.current;
@@ -70,11 +74,14 @@ function App() {
     bg.excludeFromExport = true;
     canvas.add(bg);
 
-    // Attach brush
+    // Attach brushes
     let brush = new fabric.PencilBrush(canvas);
     brush.color = constants.DRAW_COLOR;
     brush.width = constants.LINE_WIDTH;
-    canvas.freeDrawingBrush = brush;
+    canvas.state.pencilBrush = brush;
+
+    brush = new LassoBrush(canvas);
+    canvas.state.lassoBrush = brush;
 
     // Fabric events handlers
     canvas.on({
@@ -112,7 +119,7 @@ function App() {
   // Handlers for user-initiated events
   //
 
-  function handleMode(event, newMode){
+  function handleMode(event, newMode) {
     let canvas = fabRef.current;
     if (canvas.state.disableModeSwitch || !newMode) return;
     canvas.state.mode = newMode;
@@ -128,6 +135,24 @@ function App() {
     }
     canvas.state.drawMode = newDrawMode;
     utils.resetCanvasState(canvas);
+  }
+
+  function toggleLasso(enable) {
+    let canvas = fabRef.current;
+    if (canvas.state.mode !== 'select') {
+      console.log("Unexpected behavior in App.jsx:toggleLasso");
+      return;
+    }
+    if (enable) {
+      canvas.defaultCursor = 'crosshair';
+      canvas.isDrawingMode = true
+      canvas.freeDrawingBrush = canvas.state.lassoBrush;
+    } else if (!canvas.state.lassoing){
+      canvas.defaultCursor='default';
+      canvas.isDrawingMode=false;
+    }
+    canvas.state.lasso = enable;
+    canvas.fire('saveState');
   }
 
   function handleSnap(event) {
@@ -414,6 +439,7 @@ function App() {
     stateView,
     handleMode,
     handleDrawMode,
+    toggleLasso,
     handleSnap,
     handleRemoveMeta,
     handleCopy, handlePaste,

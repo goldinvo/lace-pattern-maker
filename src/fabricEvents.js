@@ -1,7 +1,7 @@
-import { getScopedCssBaselineUtilityClass } from '@mui/material';
 import * as constants from './constants.js'
 import * as utils from './utils.js'
-import { FileCopy } from '@mui/icons-material';
+import pointInPolygon from 'point-in-polygon'
+import { pointsOnPath } from 'points-on-path';
 
 // opt (command): provide command object {action: ..., } to save to undo history
 export function handleSaveState(command, canvas, setStateView) {
@@ -17,16 +17,53 @@ export function handleSaveState(command, canvas, setStateView) {
       canvas.state.undoStack.push(command);
     }
   }
-  setStateView({...canvas.state});
+  setStateView({ ...canvas.state });
   canvas.renderAll();
 }
 
 export function handlePathCreated(opt, canvas) {
-  opt.path.set(utils.defaultPath);
-  canvas.fire('saveState', {
-    action: 'add',
-    objects: [opt.path],
-  });
+  if (canvas.state.mode === 'select') {
+    // Want to get selection of objects inside lasso
+    let polygon = opt.path.path.map((e) => [e[1], e[2]]); // lasso polygon
+    const objectInPolygon = (obj) => {
+      if (!obj.isContainedWithinObject(opt.path, true) || !obj.selectable) {  // first filter by bounding box
+        return false;
+      } 
+      if (obj.type === 'circle') {
+        let point = obj.getCenterPoint();
+        return pointInPolygon([point.x, point.y], polygon)
+      } else if (obj.type === 'path') {
+        // get a sample of points from path
+        let sample = pointsOnPath(obj._toSVG()[3], 1, 1)[0];
+        
+        for (const point of sample) {
+          if (!pointInPolygon(point, polygon)) return false;
+        }
+        return true;
+      } else {
+        console.log('Foreign object: handlePathCreated', obj)
+      }
+      return false;
+    }
+
+    let selection = new fabric.ActiveSelection(
+      canvas.getObjects().filter(objectInPolygon),
+      { canvas: canvas, }
+    );
+    canvas.setActiveObject(selection);
+    // done with lasso
+    canvas.defaultCursor='default';
+    canvas.isDrawingMode=false;
+    canvas.state.lasso=false;
+    canvas.fire('saveState');
+  } else {
+    opt.path.set(utils.defaultPath);
+
+    canvas.fire('saveState', {
+      action: 'add',
+      objects: [opt.path],
+    });
+  }
 }
 
 export function handleObjectModified(opt, canvas) {
@@ -36,15 +73,15 @@ export function handleObjectModified(opt, canvas) {
   }
   canvas.state.disableModeSwitch = canvas.state.disableUndo = false; // already set by mouseUp but just to be sure
 
-  let initialCoords = {x: opt.transform.original.left, y: opt.transform.original.top};
-  let finalCoords = {x: opt.transform.target.left, y: opt.transform.target.top};
+  let initialCoords = { x: opt.transform.original.left, y: opt.transform.original.top };
+  let finalCoords = { x: opt.transform.target.left, y: opt.transform.target.top };
   // Drag and drop snap to grid
   if (canvas.state.snap) {
     // calculate offset, then apply after snap  (active selection TL will be off grid)
-    let {x: snapX, y: snapY} = utils.snapToGrid(initialCoords);
+    let { x: snapX, y: snapY } = utils.snapToGrid(initialCoords);
     let gridOffsetX = initialCoords.x - snapX;
     let gridOffsetY = initialCoords.y - snapY;
-   
+
     finalCoords = utils.snapToGrid(finalCoords);
     finalCoords.x += gridOffsetX;
     finalCoords.y += gridOffsetY;
@@ -55,13 +92,13 @@ export function handleObjectModified(opt, canvas) {
   }
 
   let transform = fabric.util.composeMatrix({
-    translateX: finalCoords.x - initialCoords.x, 
+    translateX: finalCoords.x - initialCoords.x,
     translateY: finalCoords.y - initialCoords.y,
   });
 
   let objects = opt.target.type === 'activeSelection'
-                ? opt.target.getObjects()
-                : [opt.target];
+    ? opt.target.getObjects()
+    : [opt.target];
 
   canvas.fire('saveState', {
     action: 'transform',
@@ -108,14 +145,14 @@ export function handleDoubleClick(opt, canvas) {
 
 export function handleMouseDown(opt, canvas) {
   let commandToSave = null;
-  switch(canvas.state.mode) {
+  switch (canvas.state.mode) {
     case 'pan':
       canvas.state.isDragging = true;
       canvas.state.lastPosX = opt.e.clientX;
       canvas.state.lastPosY = opt.e.clientY;
       break;
     case 'draw':
-      switch(canvas.state.drawMode) {
+      switch (canvas.state.drawMode) {
         case 'point':
           let coords = opt.absolutePointer;
           if (canvas.state.snap) coords = utils.snapToGrid(coords);
@@ -145,11 +182,11 @@ export function handleMouseDown(opt, canvas) {
             canvas.add(p1);
             canvas.state.p1 = p1;
 
-          } else if (!canvas.state.p2){
+          } else if (!canvas.state.p2) {
             let p1Coords = canvas.state.p1.getCenterPoint();
             let p2Coords = opt.absolutePointer;
             if (canvas.state.snap) p2Coords = utils.snapToGrid(p2Coords);
-            let p3Coords = {  
+            let p3Coords = {
               x: (p1Coords.x + p2Coords.x) / 2,
               y: (p1Coords.y + p2Coords.y) / 2,
             }
@@ -173,8 +210,8 @@ export function handleMouseDown(opt, canvas) {
             canvas.add(p3);
             canvas.state.p3 = p3;
 
-            let line = new fabric.Path( 
-              `M ${p1Coords.x} ${p1Coords.y} Q ${p3Coords.x}, ${p3Coords.y}, ${p2Coords.x}, ${p2Coords.y}`, 
+            let line = new fabric.Path(
+              `M ${p1Coords.x} ${p1Coords.y} Q ${p3Coords.x}, ${p3Coords.y}, ${p2Coords.x}, ${p2Coords.y}`,
               utils.defaultPath
             );
             canvas.add(line); //canvas.insertAt??
@@ -190,7 +227,7 @@ export function handleMouseDown(opt, canvas) {
             }
           } else if ( // replicate behavior of perPixelTargetFind
             canvas.state.p3.containsPoint(opt.pointer)
-            && !canvas.isTargetTransparent(canvas.state.p3, opt.pointer.x, opt.pointer.y) 
+            && !canvas.isTargetTransparent(canvas.state.p3, opt.pointer.x, opt.pointer.y)
           ) {
             canvas.state.isBending = true;
             canvas.state.disableUndo = true;
@@ -218,6 +255,9 @@ export function handleMouseDown(opt, canvas) {
         }
       }
     case 'select':
+      if (canvas.state.lasso) {
+        canvas.state.lassoing = true;
+      }
       break;
   }
   canvas.fire('saveState', commandToSave);
@@ -251,14 +291,14 @@ export function handleMouseMove(opt, canvas) {
     let p2Coords = canvas.state.p2.getCenterPoint();
     let p3Coords = opt.absolutePointer;
     // update line
-    let newLine = new fabric.Path( 
-      `M ${p1Coords.x} ${p1Coords.y} Q ${p3Coords.x}, ${p3Coords.y}, ${p2Coords.x}, ${p2Coords.y}`, 
+    let newLine = new fabric.Path(
+      `M ${p1Coords.x} ${p1Coords.y} Q ${p3Coords.x}, ${p3Coords.y}, ${p2Coords.x}, ${p2Coords.y}`,
       utils.defaultPath
     );
     canvas.remove(canvas.state.curLine);
     canvas.add(newLine);
     canvas.state.curLine = newLine;
-    
+
     canvas.bringToFront(canvas.state.p1);
     canvas.bringToFront(canvas.state.p2);
     canvas.bringToFront(canvas.state.p3);
@@ -271,7 +311,7 @@ export function handleMouseMove(opt, canvas) {
 
 export function handleMouseUp(opt, canvas) {
   let commandToSave = null;
-  
+
   // on mouse up we want to recalculate new interaction
   // for all objects, so we call setViewportTransform
   canvas.setViewportTransform(canvas.viewportTransform);

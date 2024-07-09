@@ -48,6 +48,8 @@ export default function Toolbar(props) {
     } else if ((e.ctrlKey || e.metaKey) && e.key === "z" && !props.stateView.disableUndo) {
       e.shiftKey ? props.handleRedo() : props.handleUndo();
       e.preventDefault();
+    } else if (e.key === "Shift" && props.stateView.mode ==="select") {
+      props.toggleLasso(true);
     }
 
   }
@@ -56,6 +58,8 @@ export default function Toolbar(props) {
     if (previousMode && e.key === "Alt") {
       props.handleMode(e, previousMode);
       setPreviousMode(null);
+    } else if (e.key === "Shift" && props.stateView.mode ==="select") {
+      props.toggleLasso(false);
     }
   }
   
@@ -113,6 +117,7 @@ export default function Toolbar(props) {
                                     handleCopy={props.handleCopy} 
                                     handlePaste={props.handlePaste}
                                     handleReflect={props.handleReflect}
+                                    toggleLasso={props.toggleLasso}
                                     />}
 
     { (props.stateView.mode === "draw") && <DrawPanel 

@@ -74,6 +74,8 @@ export function resetCanvasState(canvas) {
   canvas.state.disableUndo = false;
   canvas.state.isDeleting = canvas.state.isDragging = false;
   canvas.state.lastPosX = canvas.state.lastPosY = null;
+  
+  canvas.state.lasso = false;
   resetDrawLineState(canvas);
   resetMetaPointState(canvas);
 
@@ -91,7 +93,12 @@ export function resetCanvasState(canvas) {
       canvas.selection = false;
       canvas.skipTargetFind = true;
       fabric.Object.prototype.selectable = false;
-      canvas.isDrawingMode = canvas.state.drawMode==='freehand';
+      if (canvas.state.drawMode==='freehand') {
+        canvas.isDrawingMode = true;
+        canvas.freeDrawingBrush = canvas.state.pencilBrush;
+      } else {
+        canvas.isDrawingMode = false;
+      }
       break;
     case 'pan':
       canvas.defaultCursor = 'grab';

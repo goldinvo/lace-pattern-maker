@@ -8,6 +8,7 @@ import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import Rotate90DegreesCwOutlinedIcon from '@mui/icons-material/Rotate90DegreesCwOutlined';
 import FlipOutlinedIcon from '@mui/icons-material/FlipOutlined';
+import ToggleButton from '@mui/material/ToggleButton';
 
 
 export default function SelectPanel(props) {
@@ -37,6 +38,16 @@ export default function SelectPanel(props) {
 
   return (
     <>
+      
+      <ToggleButton 
+        fullWidth
+        value="lasso"
+        selected={props.stateView.lasso}
+        onChange={() => props.toggleLasso(!props.stateView.lasso)}
+      >
+        Lasso
+      </ToggleButton>
+
       <ButtonGroup variant="outlined" fullWidth>
         
         <Button 
