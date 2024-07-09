@@ -17,8 +17,7 @@ export default function SelectPanel(props) {
   const [isPasteClicked, setIsPasteClicked] = useState(false);
   
   const handleCut = () => {
-    props.handleCopy()
-    props.handleDelete();
+    props.handleCut();
     setIsCutClicked(true);
     setTimeout(() => setIsCutClicked(false), 1000);
   }
@@ -38,7 +37,7 @@ export default function SelectPanel(props) {
 
   return (
     <>
-      <Tooltip title="Lasso Select (Shift)">
+      <Tooltip title="Lasso Select (A)">
         <ToggleButton 
           fullWidth
           size="small"
@@ -53,55 +52,55 @@ export default function SelectPanel(props) {
       </Tooltip>
 
       <ButtonGroup variant="outlined" fullWidth>
-        <Tooltip title="Cut (Ctrl/Cmd + X)">
+        <Tooltip title="Cut (Ctrl/Cmd + X)"><span style={{width: '100%'}}>
           <Button 
             disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint} 
             onClick={handleCut}
           >
             {isCutClicked ? <CheckOutlinedIcon/> : <ContentCutOutlinedIcon/>}
           </Button>
-        </Tooltip>
-        <Tooltip title="Copy (Ctrl/Cmd + C)">
+        </span></Tooltip>
+        <Tooltip title="Copy (Ctrl/Cmd + C)"><span style={{width: '100%'}}>
           <Button 
             disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint} 
             onClick={handleCopy}
           >
             {isCopyClicked ? <CheckOutlinedIcon/> : <ContentCopyOutlinedIcon/>}
           </Button>
-        </Tooltip>
-        <Tooltip title="Paste (Ctrl/Cmd + V)">
+        </span></Tooltip>
+        <Tooltip title="Paste (Ctrl/Cmd + V)"><span style={{width: '100%'}}>
           <Button 
             disabled={!props.stateView.clipboard || !props.stateView.curMetaPoint} 
             onClick={handlePaste}
           >
             {isPasteClicked ? <CheckOutlinedIcon/> : <ContentPasteOutlinedIcon/>}
           </Button>
-        </Tooltip>
+        </span></Tooltip>
       </ButtonGroup>
 
       <ButtonGroup variant="outlined" fullWidth> 
-        <Tooltip title="Rotate Clockwise 90 Degrees">
+        <Tooltip title="Rotate Clockwise 90 Degrees"><span style={{width: '100%'}}>
           <Button onClick={props.handleRotate} disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint}>
             <Rotate90DegreesCwOutlinedIcon/>
           </Button>
-        </Tooltip>
-        <Tooltip title="Reflect Vertically">
+        </span></Tooltip>
+        <Tooltip title="Reflect Vertically"><span style={{width: '100%'}}>
           <Button onClick={() => props.handleReflect({vertical: true})} disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint}>
             <FlipOutlinedIcon/>
           </Button>
-        </Tooltip>
-        <Tooltip title="Reflect Horizontally">
+        </span></Tooltip>
+        <Tooltip title="Reflect Horizontally"><span style={{width: '100%'}}>
           <Button onClick={() => props.handleReflect({horizontal: true})} disabled={!props.stateView.selectionExists || !props.stateView.curMetaPoint}>
             <FlipOutlinedIcon sx={{transform: 'rotate(90deg);'}}/>
           </Button>
-        </Tooltip>
+        </span></Tooltip>
       </ButtonGroup>
 
-      <Tooltip title="Delete Selection (Bksp)">
+      <Tooltip title="Delete Selection (Bksp)"><span style={{width: '100%'}}>
         <Button variant="outlined" fullWidth onClick={props.handleDelete} disabled={!props.stateView.selectionExists}>
           <DeleteOutlinedIcon/>
         </Button>
-      </Tooltip>
+      </span></Tooltip>
     </>
   );
 }

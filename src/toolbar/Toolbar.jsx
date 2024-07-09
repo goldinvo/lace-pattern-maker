@@ -35,27 +35,83 @@ export default function Toolbar(props) {
   if (!props.stateView) return; // Need canvas to mount first so we have fabric state.
   
   function handleKeyDown(e) {
-    if (e.key === "Alt" && !props.stateView.disableModeSwitch) {
-      setPreviousMode(props.stateView.mode);
-      props.handleMode(e,"pan");
-    } else if (e.key === "Backspace" && props.stateView.selectionExists) {
-      props.handleDelete();
-      e.preventDefault();
-    } else if ((e.ctrlKey || e.metaKey) && e.key === "z" && !props.stateView.disableUndo) {
-      e.shiftKey ? props.handleRedo() : props.handleUndo();
-      e.preventDefault();
-    } else if (e.key === "Shift" && props.stateView.mode ==="select") {
-      props.toggleLasso(true);
+    console.log(e);
+    switch (e.key) {
+      case 'Alt': // Pan 
+        if (!props.stateView.disableModeSwitch) {
+          setPreviousMode(props.stateView.mode);
+          props.handleMode(e,"pan");
+          e.preventDefault(); 
+        }
+        break;
+      case 'Backspace': // Delete
+        props.handleDelete();
+        e.preventDefault();
+        break;
+      case 'Z':
+      case 'z':  // Undo/Redo
+        if ((e.ctrlKey || e.metaKey) && !props.stateView.disableUndo) {
+          e.shiftKey ? props.handleRedo() : props.handleUndo();
+          e.preventDefault();
+        }
+        break;
+      case 'A':
+      case 'a': // Lasso select
+        if (props.stateView.mode === 'select') {
+          props.toggleLasso(true);
+          e.preventDefault();
+        }
+        break;
+      case 'X':
+      case 'x': // cut
+        if (e.ctrlKey || e.metaKey) {
+          props.handleCut();
+          e.preventDefault();
+        }
+        break;
+      case 'C':
+      case 'c': // cut
+        if (e.ctrlKey || e.metaKey) {
+          props.handleCopy();
+          e.preventDefault();
+        }
+        break;
+      case 'V':
+      case 'v': // cut
+        if (e.ctrlKey || e.metaKey) {
+          props.handlePaste();
+          e.preventDefault();
+        }
+        break;
+      case 'S':
+      case 's': // select mode
+        if (props.stateView.mode !== 'select') {
+          props.handleMode(e, 'select');
+          e.preventDefault();
+        }
+        break;
+      case 'D':
+      case 'd': // draw mode
+      if (props.stateView.mode !== 'draw') {
+        props.handleMode(e, 'draw');
+        e.preventDefault();
+      }
+      break;
     }
-
   }
   
   function handleKeyUp(e) {
-    if (previousMode && e.key === "Alt") {
-      props.handleMode(e, previousMode);
-      setPreviousMode(null);
-    } else if (e.key === "Shift" && props.stateView.mode ==="select") {
-      props.toggleLasso(false);
+    switch (e.key) {
+      case 'Alt': // Toggle out of pan 
+        if (previousMode) {
+          props.handleMode(e, previousMode);
+          setPreviousMode(null);
+        }
+      case 'A':
+      case 'a': // Finished with lasso select
+        if (props.stateView.mode === "select") {
+          props.toggleLasso(false);
+        }
     }
   }
   
@@ -84,12 +140,12 @@ export default function Toolbar(props) {
       onChange={props.handleMode}
       aria-label="mode"
     >
-      <Tooltip title = "Select">
+      <Tooltip title = "Select (S)">
         <ToggleButton value="select" aria-label="select">
           <SvgIcon><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368"><path d="m320-410 79-110h170L320-716v306Zm286 305q-23 11-46 2.5T526-134L406-392l-93 130q-17 24-45 15t-28-38v-513q0-25 22.5-36t42.5 5l404 318q23 17 13.5 44T684-440H516l119 255q11 23 2.5 46T606-105ZM399-520Z"/></svg></SvgIcon>
         </ToggleButton>
       </Tooltip>
-      <Tooltip title="Draw"> 
+      <Tooltip title="Draw (D)"> 
         <ToggleButton value="draw" aria-label="draw">
           <SvgIcon><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368"><path d="M200-120q-17 0-28.5-11.5T160-160v-97q0-16 6-30.5t17-25.5l504-503q12-12 27-18t30-6q16 0 30.5 6t25.5 18l56 56q12 11 18 25.5t6 30.5q0 15-6 30t-18 27L353-143q-11 11-25.5 17t-30.5 6h-97Zm40-80h56l393-392-28-29-29-28-392 393v56Zm560-503-57-57 57 57Zm-139 82-29-28 57 57-28-29ZM560-120q74 0 137-37t63-103q0-32-16-55.5T702-359q-14-10-30-10t-27 12q-11 12-11 29.5t14 27.5q14 11 23 20t9 20q0 23-36.5 41.5T560-200q-17 0-28.5 11.5T520-160q0 17 11.5 28.5T560-120ZM360-720q0 14-17.5 25.5T262-654q-80 35-111 63.5T120-520q0 26 12 46t31 35q13 11 29 9.5t27-14.5q11-13 10-29t-14-27q-7-5-11-10t-4-10q0-12 18-24t76-37q88-38 117-69t29-70q0-55-44-87.5T280-840q-45 0-80.5 16T145-785q-11 13-9 29t15 26q13 11 29 9t27-13q14-14 31-20t42-6q41 0 60.5 12t19.5 28Z"/></svg></SvgIcon>
         </ToggleButton>
@@ -110,6 +166,7 @@ export default function Toolbar(props) {
                                     stateView={props.stateView}
                                     handleDelete={props.handleDelete} 
                                     handleRotate={props.handleRotate}
+                                    handleCut = {props.handleCut}
                                     handleCopy={props.handleCopy} 
                                     handlePaste={props.handlePaste}
                                     handleReflect={props.handleReflect}
@@ -125,12 +182,12 @@ export default function Toolbar(props) {
     
 
     <ButtonGroup variant='outlined' fullWidth>
-      <Tooltip title="Undo (Ctrl/Cmd + Z)">
+      <Tooltip title="Undo (Ctrl/Cmd + Z)"><span style={{width: '100%'}}>
         <Button disabled={props.stateView.disableUndo || props.stateView.undoStack.length <= 0} onClick={props.handleUndo}><UndoOutlinedIcon/></Button>
-      </Tooltip>
-      <Tooltip title="Redo (Ctrl/Cmd + Shift + Z)">
+      </span></Tooltip>
+      <Tooltip title="Redo (Ctrl/Cmd + Shift + Z)"><span style={{width: '100%'}}>
         <Button disabled={props.stateView.disableUndo || props.stateView.redoStack.length <= 0} onClick={props.handleRedo}><RedoOutlinedIcon/></Button>
-      </Tooltip>
+      </span></Tooltip>
     </ButtonGroup>
     {(props.stateView.mode === 'draw' || props.stateView.mode === 'select') && snapToggle}
     {curPosChip}

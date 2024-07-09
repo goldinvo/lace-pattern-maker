@@ -167,10 +167,22 @@ function App() {
     canvas.fire('saveState');
   }
 
+  function handleCut() {
+    let canvas = fabRef.current;
+    if (canvas.state.mode !== 'select' 
+      || !canvas.state.curMetaPoint 
+      || !canvas.state.selectionExists) {
+      return;
+    }
+    handleCopy();
+    handleDelete();
+  }
+
   function handleCopy() {
     let canvas = fabRef.current;
-    if (!canvas.state.curMetaPoint || !canvas.state.selectionExists) {
-      console.log('Unexpected behavior in handleCopy()');
+    if (canvas.state.mode !== 'select' 
+        || !canvas.state.curMetaPoint 
+        || !canvas.state.selectionExists) {
       return;
     }
 
@@ -228,6 +240,8 @@ function App() {
 
   function handleDelete() {
     let canvas = fabRef.current;
+    if (!canvas.state.selectionExists || canvas.state.mode !== 'select') return false;
+
     let activeObjects = canvas.getActiveObjects();
     canvas.discardActiveObject();
     canvas.remove(...activeObjects);
@@ -255,6 +269,7 @@ function App() {
     // i am happier than a clam 
     
     fabric.util.addTransformToObject(activeObject, transform);
+    activeObject.setCoords();
 
     canvas.fire('saveState', {
       action: 'transform',
@@ -290,6 +305,7 @@ function App() {
     ];
 
     fabric.util.addTransformToObject(activeObject, transform);
+    activeObject.setCoords();
 
     canvas.fire('saveState', {
       action: 'transform',
@@ -467,7 +483,7 @@ function App() {
     toggleLasso,
     handleSnap,
     handleRemoveMeta,
-    handleCopy, handlePaste,
+    handleCut, handleCopy, handlePaste,
     handleDelete, handleRotate, handleReflect,
     handleUndo, handleRedo
   }
