@@ -35,7 +35,7 @@ export default function Toolbar(props) {
   if (!props.stateView) return; // Need canvas to mount first so we have fabric state.
   
   function handleKeyDown(e) {
-    console.log(e);
+    if (e.target.type === 'textarea' || e.target.type === 'text') return;
     switch (e.key) {
       case 'Alt': // Pan 
         if (!props.stateView.disableModeSwitch) {
@@ -101,6 +101,7 @@ export default function Toolbar(props) {
   }
   
   function handleKeyUp(e) {
+    if (e.target.type === 'textarea' || e.target.type === 'text') return;
     switch (e.key) {
       case 'Alt': // Toggle out of pan 
         if (previousMode) {

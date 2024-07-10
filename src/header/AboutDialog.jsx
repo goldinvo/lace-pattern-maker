@@ -72,6 +72,7 @@ function AboutDialog({ open, handleClose }) {
 
     <h2>Further Information</h2>
     <p>Visit my <a href="https://goldinvo.com/blog/2024/06/29/lace-pattern-tool">blog post</a> for details about using this tool, or watch the video below.</p>
+    <iframe width="889" height="500" src="https://www.youtube.com/embed/yQAynfm4L6E" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose} color="primary">

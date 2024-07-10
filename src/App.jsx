@@ -130,7 +130,7 @@ function App() {
     let canvas = fabRef.current;
     if (canvas.state.disableModeSwitch || !newDrawMode) return;
     if (canvas.state.mode!=='draw') {
-      console.log("Unexpected behavior in App.jsx:handleDrawMode");
+      ("Unexpected behavior in App.jsx:handleDrawMode");
       return;
     }
     canvas.state.drawMode = newDrawMode;
