@@ -8,8 +8,8 @@ import Button from '@mui/material/Button';
 
 /*
 
-# Lace Pattern Tool
-**Lace Pattern Tool** is an interactive canvas designed for making bobbin lace 
+# Lace Pattern Maker
+**Lace Pattern Maker** is an interactive canvas designed for making bobbin lace 
 patterns. It is easy-to-learn and free-to-use!
 
 If you enjoyed using this tool or have any feedback, bug reports, or feature requests, please 
@@ -51,8 +51,8 @@ function AboutDialog({ open, handleClose }) {
             </IconButton>
           </DialogTitle>
           <DialogContent dividers>
-          <h1>Lace Pattern Tool</h1>
-    <p><strong>Lace Pattern Tool</strong> is an interactive canvas designed for making bobbin lace patterns. It is easy-to-learn and free-to-use!</p>
+          <h1>Lace Pattern Maker</h1>
+    <p><strong>Lace Pattern Maker</strong> is an interactive canvas designed for making bobbin lace patterns. It is easy-to-learn and free-to-use!</p>
 
     <p>If you enjoyed using this tool or have any feedback, bug reports, or feature requests, please email me at <a href="mailto:goldin@goldinvo.com">goldin@goldinvo.com</a>.</p>
 
