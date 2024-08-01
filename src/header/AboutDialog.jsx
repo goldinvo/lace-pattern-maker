@@ -26,7 +26,7 @@ With select mode you can Group Move, Group Delete, cut/copy/paste, or perform tr
 5. Print your finished pattern at the correct scale using the Print Dialog form. 
 
 ## Further Information
-Visit my [blog post](https://goldinvo.com/blog/2024/06/29/lace-pattern-tool) details about
+Visit my [blog post](https://goldinvo.com/blog/2024/06/29/lace-pattern-maker) details about
 using this tool, or watch the video below.
 
 */
@@ -71,7 +71,7 @@ function AboutDialog({ open, handleClose }) {
     </ol>
 
     <h2>Further Information</h2>
-    <p>Visit my <a href="https://goldinvo.com/blog/2024/06/29/lace-pattern-tool">blog post</a> for details about using this tool, or watch the video below.</p>
+    <p>Visit my <a href="https://goldinvo.com/blog/2024/06/29/lace-pattern-maker">blog post</a> for details about using this tool, or watch the video below.</p>
     <iframe width="889" height="500" src="https://www.youtube.com/embed/yQAynfm4L6E" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
           </DialogContent>
           <DialogActions>

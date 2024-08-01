@@ -1,6 +1,6 @@
 {
-  "name": "lace-pattern-tool",
-  "homepage": "https://goldinvo.github.io/lace-pattern-tool",
+  "name": "lace-pattern-maker",
+  "homepage": "https://goldinvo.github.io/lace-pattern-maker",
   "private": true,
   "version": "0.0.0",
   "type": "module",

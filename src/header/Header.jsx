@@ -79,7 +79,7 @@ function Header(props) {
               },
             }}
           >
-            lace-pattern-tool
+            lace-pattern-maker
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
