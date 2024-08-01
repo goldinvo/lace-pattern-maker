@@ -101,6 +101,10 @@ export default function SelectPanel(props) {
           <DeleteOutlinedIcon/>
         </Button>
       </span></Tooltip>
+
+      {!props.stateView.selectionExists && <span>No objects selected</span>}
+      {!props.stateView.curMetaPoint && <span>No control point (dbl-clk)</span>}
+
     </>
   );
 }
